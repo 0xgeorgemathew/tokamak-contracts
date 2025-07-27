@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.23;
 
 import { Script } from "forge-std/Script.sol";
 import { TokenMock } from "solidity-utils/contracts/mocks/TokenMock.sol";
 import { EscrowFactory } from "contracts/EscrowFactory.sol";
-
-// solhint-disable no-console
 import { console } from "forge-std/console.sol";
+import { DeploymentUtils } from "./DeploymentUtils.s.sol"; // <-- IMPORT
 
-contract DeployEscrowFactoryTestnet is Script {
+contract DeployEscrowFactoryTestnet is DeploymentUtils {
     uint32 public constant RESCUE_DELAY = 691200; // 8 days
-
-    // Use a dummy LOP address for testing (you can update this)
     address public constant LOP = 0xa8D8F5f33af375ba0Eb0Ed15C46DA0757DE21b56;
+    uint256 public constant SEPOLIA_CHAIN_ID = 11155111;
+    string public constant NETWORK_NAME = "sepolia";
 
     function run() external {
         address deployer = vm.envAddress("DEPLOYER_ADDRESS");
@@ -21,33 +19,28 @@ contract DeployEscrowFactoryTestnet is Script {
 
         vm.startBroadcast();
 
-        // Deploy mock ACCESS TOKEN (same as Monad)
         TokenMock accessToken = new TokenMock("ACCESS TOKEN", "ACCESS");
-        console.log("ACCESS TOKEN deployed at: ", address(accessToken));
-
-        // Deploy mock FEE TOKEN (same as Monad)
         TokenMock feeToken = new TokenMock("FEE TOKEN", "FEE");
-        console.log("FEE TOKEN deployed at: ", address(feeToken));
+        TokenMock swapToken = new TokenMock("SEPOLIA SWAP TOKEN", "SSWAP");
+        EscrowFactory escrowFactory = new EscrowFactory(LOP, feeToken, accessToken, feeBankOwner, RESCUE_DELAY, RESCUE_DELAY);
+        //mint tokens
 
-        // Deploy EscrowFactory with SAME INTERFACE as Monad
-        EscrowFactory escrowFactory = new EscrowFactory(
-            LOP,
-            feeToken,
-            accessToken,
-            feeBankOwner,
-            RESCUE_DELAY,
-            RESCUE_DELAY
-        );
 
         vm.stopBroadcast();
 
+        // --- Use the utility to write to the file ---
+        DeploymentAddresses memory addrs = DeploymentAddresses({
+            factory: address(escrowFactory),
+            accessToken: address(accessToken),
+            feeToken: address(feeToken),
+            swapToken: address(swapToken),
+            lop: LOP
+        });
+
+        updateDeploymentFile(NETWORK_NAME, SEPOLIA_CHAIN_ID, deployer, RESCUE_DELAY, addrs);
+
         console.log("=== SEPOLIA DEPLOYMENT SUMMARY ===");
         console.log("Escrow Factory deployed at: ", address(escrowFactory));
-        console.log("LOP address: ", LOP);
-        console.log("Fee token: ", address(feeToken));
-        console.log("Access token: ", address(accessToken));
-        console.log("Deployer/Owner: ", deployer);
-        console.log("Rescue delay (seconds): ", RESCUE_DELAY);
+        console.log("Deployment info saved to deployments.json");
     }
 }
-// solhint-enable no-console

@@ -1,0 +1,25 @@
+{
+  "lastUpdated": 1753606236,
+  "deployer": "0x20E5B952942417D4CB99d64a9e06e41Dcef00000",
+  "config": {
+    "rescueDelay": 691200
+  },
+  "contracts": {
+    "sepolia": {
+      "chainId": 11155111,
+      "escrowFactory": "0x6D3002AcE4619162b1231fd33502371e80D2b3EC",
+      "accessToken": "0x20c2f45fF4c55F0A51F497DC8bc5cE5eA19e0183",
+      "feeToken": "0x72322366899088C5EeFD664060bf7B2C7924442b",
+      "swapToken": "0x42312264B1fFdc7a19C7aa9d199D7eE1F94f8b01",
+      "limitOrderProtocol": "0xa8D8F5f33af375ba0Eb0Ed15C46DA0757DE21b56"
+    },
+"monad": {
+      "chainId": 10143,
+      "escrowFactory": "0xca024dF3DFc8e23Ce6152c35525cF20F90f4e874",
+      "accessToken": "0x4cd000Be3E040ec597717E8ef1BD0164b98a6dd4",
+      "feeToken": "0x848D3E1B72112231a235FD14840014E52f396728",
+      "swapToken": "0x3C11bbAB586ad18EE9d53dF47718DBefec7445D0",
+      "limitOrderProtocol": "0x689F20F2e2901f32E255e8016Ad9D58b61D353b3"
+    }
+  }
+}

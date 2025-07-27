@@ -49,7 +49,7 @@ if [ "$1" = "zksync" ]; then
     forge script script/DeployEscrowFactoryZkSync.s.sol --zksync --fork-url $rpc_url --keystore $keystore --broadcast -vvvv
 elif [ "$1" = "monad" ]; then
     forge script script/DeployEscrowFactoryMonad.s.sol \
-        --fork-url $rpc_url \
+        --rpc-url $rpc_url \
         --keystore $keystore \
         --broadcast \
         --verify \
@@ -58,7 +58,7 @@ elif [ "$1" = "monad" ]; then
         -vvvv
 elif [ "$1" = "sepolia" ] || [ "$1" = "goerli" ]; then
     forge script script/DeployEscrowFactoryTestnet.s.sol \
-        --fork-url $rpc_url \
+        --rpc-url $rpc_url \
         --keystore $keystore \
         --broadcast \
         --verify \
