@@ -62,6 +62,7 @@ elif [ "$1" = "sepolia" ] || [ "$1" = "goerli" ]; then
         --keystore $keystore \
         --broadcast \
         --verify \
+        --etherscan-api-key $ETHERSCAN_API_KEY \
         -vvvv
 else
     forge script script/DeployEscrowFactory.s.sol --fork-url $rpc_url --keystore $keystore --broadcast -vvvv
