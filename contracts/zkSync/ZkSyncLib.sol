@@ -8,7 +8,7 @@ pragma solidity ^0.8.20;
  */
 library ZkSyncLib {
     // keccak256("zksyncCreate2")
-    bytes32 constant private _CREATE2_PREFIX = 0x2020dba91b30cc0006188af794c2fb30dd8520db7e2c088b7fc7c103c00ca494;
+    bytes32 private constant _CREATE2_PREFIX = 0x2020dba91b30cc0006188af794c2fb30dd8520db7e2c088b7fc7c103c00ca494;
 
     /**
      * @notice Returns the address of the contract deployed with CREATE2.

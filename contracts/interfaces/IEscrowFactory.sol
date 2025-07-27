@@ -70,12 +70,16 @@ interface IEscrowFactory {
      * @param immutables The immutable arguments used to compute salt for escrow deployment.
      * @return The computed address of the escrow.
      */
-    function addressOfEscrowSrc(IBaseEscrow.Immutables calldata immutables) external view returns (address);
+    function addressOfEscrowSrc(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address);
 
     /**
      * @notice Returns the deterministic address of the destination escrow based on the salt.
      * @param immutables The immutable arguments used to compute salt for escrow deployment.
      * @return The computed address of the escrow.
      */
-    function addressOfEscrowDst(IBaseEscrow.Immutables calldata immutables) external view returns (address);
+    function addressOfEscrowDst(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address);
 }

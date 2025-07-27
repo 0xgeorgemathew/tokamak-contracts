@@ -15,27 +15,39 @@ contract TimelocksLibMock {
         return TimelocksLib.rescueStart(timelocks, rescueDelay);
     }
 
-    function srcWithdrawal(Timelocks timelocks) external pure returns (uint256) {
+    function srcWithdrawal(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.SrcWithdrawal);
     }
 
-    function srcCancellation(Timelocks timelocks) external pure returns (uint256) {
+    function srcCancellation(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.SrcCancellation);
     }
 
-    function srcPublicCancellation(Timelocks timelocks) external pure returns (uint256) {
+    function srcPublicCancellation(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.SrcPublicCancellation);
     }
 
-    function dstWithdrawal(Timelocks timelocks) external pure returns (uint256) {
+    function dstWithdrawal(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.DstWithdrawal);
     }
 
-    function dstPublicWithdrawal(Timelocks timelocks) external pure returns (uint256) {
+    function dstPublicWithdrawal(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.DstPublicWithdrawal);
     }
 
-    function dstCancellation(Timelocks timelocks) external pure returns (uint256) {
+    function dstCancellation(
+        Timelocks timelocks
+    ) external pure returns (uint256) {
         return timelocks.get(TimelocksLib.Stage.DstCancellation);
     }
 }

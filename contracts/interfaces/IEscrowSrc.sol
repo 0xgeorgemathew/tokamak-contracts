@@ -34,5 +34,7 @@ interface IEscrowSrc is IEscrow {
      * The safety deposit is sent to the caller.
      * @param immutables The immutables of the escrow contract.
      */
-    function publicCancel(IEscrow.Immutables calldata immutables) external;
+    function publicCancel(
+        IEscrow.Immutables calldata immutables
+    ) external;
 }

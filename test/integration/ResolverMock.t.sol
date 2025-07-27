@@ -56,15 +56,7 @@ contract IntegrationResolverMockTest is BaseSetup {
         assertEq(usdc.balanceOf(address(swapData.srcClone)), 0);
         assertEq(address(swapData.srcClone).balance, 0);
 
-        IResolverExample(resolverMock).deploySrc(
-            swapData.immutables,
-            swapData.order,
-            r,
-            vs,
-            MAKING_AMOUNT,
-            takerTraits,
-            args
-        );
+        IResolverExample(resolverMock).deploySrc(swapData.immutables, swapData.order, r, vs, MAKING_AMOUNT, takerTraits, args);
 
         assertEq(usdc.balanceOf(address(swapData.srcClone)), MAKING_AMOUNT);
         assertEq(address(swapData.srcClone).balance, SRC_SAFETY_DEPOSIT);
@@ -88,15 +80,7 @@ contract IntegrationResolverMockTest is BaseSetup {
         );
 
         // deploy escrow
-        IResolverExample(resolverMock).deploySrc(
-            swapData.immutables,
-            swapData.order,
-            r,
-            vs,
-            MAKING_AMOUNT,
-            takerTraits,
-            args
-        );
+        IResolverExample(resolverMock).deploySrc(swapData.immutables, swapData.order, r, vs, MAKING_AMOUNT, takerTraits, args);
 
         uint256 aliceBalance = usdc.balanceOf(alice.addr);
         uint256 resolverBalanceNative = resolverMock.balance;
@@ -136,15 +120,7 @@ contract IntegrationResolverMockTest is BaseSetup {
         );
 
         // deploy escrow
-        IResolverExample(resolverMock).deploySrc(
-            swapData.immutables,
-            swapData.order,
-            r,
-            vs,
-            MAKING_AMOUNT,
-            takerTraits,
-            args
-        );
+        IResolverExample(resolverMock).deploySrc(swapData.immutables, swapData.order, r, vs, MAKING_AMOUNT, takerTraits, args);
 
         uint256 aliceBalance = usdc.balanceOf(alice.addr);
         uint256 resolverBalanceNative = resolverMock.balance;
@@ -245,15 +221,7 @@ contract IntegrationResolverMockTest is BaseSetup {
         );
 
         // deploy escrow
-        IResolverExample(resolverMock).deploySrc(
-            swapData.immutables,
-            swapData.order,
-            r,
-            vs,
-            MAKING_AMOUNT,
-            takerTraits,
-            args
-        );
+        IResolverExample(resolverMock).deploySrc(swapData.immutables, swapData.order, r, vs, MAKING_AMOUNT, takerTraits, args);
 
         uint256 resolverBalance = usdc.balanceOf(resolverMock);
         uint256 resolverBalanceNative = resolverMock.balance;
@@ -265,14 +233,10 @@ contract IntegrationResolverMockTest is BaseSetup {
         bytes[] memory arguments = new bytes[](2);
         targets[0] = address(swapData.srcClone);
         targets[1] = address(swapData.srcClone);
-        arguments[0] = abi.encodePacked(
-            swapData.srcClone.rescueFunds.selector,
-            abi.encode(address(usdc), MAKING_AMOUNT, swapData.immutables)
-        );
-        arguments[1] = abi.encodePacked(
-            swapData.srcClone.rescueFunds.selector,
-            abi.encode(address(0), SRC_SAFETY_DEPOSIT, swapData.immutables)
-        );
+        arguments[0] =
+            abi.encodePacked(swapData.srcClone.rescueFunds.selector, abi.encode(address(usdc), MAKING_AMOUNT, swapData.immutables));
+        arguments[1] =
+            abi.encodePacked(swapData.srcClone.rescueFunds.selector, abi.encode(address(0), SRC_SAFETY_DEPOSIT, swapData.immutables));
 
         skip(RESCUE_DELAY + 10);
         // Rescue USDC and native tokens
@@ -285,10 +249,7 @@ contract IntegrationResolverMockTest is BaseSetup {
     }
 
     function test_MockDeployDst() public {
-        (IBaseEscrow.Immutables memory immutables,
-        uint256 srcCancellationTimestamp,
-        IBaseEscrow dstClone
-        ) = _prepareDataDst();
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDst();
 
         address[] memory targets = new address[](1);
         bytes[] memory arguments = new bytes[](1);
@@ -307,10 +268,7 @@ contract IntegrationResolverMockTest is BaseSetup {
     }
 
     function test_MockWithdrawDst() public {
-        (IBaseEscrow.Immutables memory immutables,
-        uint256 srcCancellationTimestamp,
-        IBaseEscrow dstClone
-        ) = _prepareDataDst();
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDst();
 
         address[] memory targets = new address[](1);
         bytes[] memory arguments = new bytes[](1);
@@ -346,10 +304,7 @@ contract IntegrationResolverMockTest is BaseSetup {
 
     function test_MockPublicWithdrawDst() public {
         resolvers[0] = bob.addr;
-        (IBaseEscrow.Immutables memory immutables,
-        uint256 srcCancellationTimestamp,
-        IEscrowDst dstClone
-        ) = _prepareDataDst();
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IEscrowDst dstClone) = _prepareDataDst();
 
         vm.prank(bob.addr);
         escrowFactory.createDstEscrow{ value: DST_SAFETY_DEPOSIT }(immutables, srcCancellationTimestamp);
@@ -382,10 +337,7 @@ contract IntegrationResolverMockTest is BaseSetup {
     }
 
     function test_MockCancelDst() public {
-        (IBaseEscrow.Immutables memory immutables,
-        uint256 srcCancellationTimestamp,
-        IBaseEscrow dstClone
-        ) = _prepareDataDst();
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDst();
 
         address[] memory targets = new address[](1);
         bytes[] memory arguments = new bytes[](1);
@@ -420,10 +372,7 @@ contract IntegrationResolverMockTest is BaseSetup {
     }
 
     function test_MockRescueFundsDst() public {
-        (IBaseEscrow.Immutables memory immutables,
-        uint256 srcCancellationTimestamp,
-        IBaseEscrow dstClone
-        ) = _prepareDataDst();
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDst();
 
         address[] memory targets = new address[](1);
         bytes[] memory arguments = new bytes[](1);
@@ -461,5 +410,4 @@ contract IntegrationResolverMockTest is BaseSetup {
     }
 
     /* solhint-enable func-name-mixedcase */
-
 }

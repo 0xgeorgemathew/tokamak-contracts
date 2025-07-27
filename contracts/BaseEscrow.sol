@@ -35,12 +35,16 @@ abstract contract BaseEscrow is IBaseEscrow {
         _ACCESS_TOKEN = accessToken;
     }
 
-    modifier onlyTaker(Immutables calldata immutables) {
+    modifier onlyTaker(
+        Immutables calldata immutables
+    ) {
         if (msg.sender != immutables.taker.get()) revert InvalidCaller();
         _;
     }
 
-    modifier onlyValidImmutables(Immutables calldata immutables) virtual {
+    modifier onlyValidImmutables(
+        Immutables calldata immutables
+    ) virtual {
         _validateImmutables(immutables);
         _;
     }
@@ -50,12 +54,16 @@ abstract contract BaseEscrow is IBaseEscrow {
         _;
     }
 
-    modifier onlyAfter(uint256 start) {
+    modifier onlyAfter(
+        uint256 start
+    ) {
         if (block.timestamp < start) revert InvalidTime();
         _;
     }
 
-    modifier onlyBefore(uint256 stop) {
+    modifier onlyBefore(
+        uint256 stop
+    ) {
         if (block.timestamp >= stop) revert InvalidTime();
         _;
     }
@@ -68,12 +76,11 @@ abstract contract BaseEscrow is IBaseEscrow {
     /**
      * @notice See {IBaseEscrow-rescueFunds}.
      */
-    function rescueFunds(address token, uint256 amount, Immutables calldata immutables)
-        external
-        onlyTaker(immutables)
-        onlyValidImmutables(immutables)
-        onlyAfter(immutables.timelocks.rescueStart(RESCUE_DELAY))
-    {
+    function rescueFunds(
+        address token,
+        uint256 amount,
+        Immutables calldata immutables
+    ) external onlyTaker(immutables) onlyValidImmutables(immutables) onlyAfter(immutables.timelocks.rescueStart(RESCUE_DELAY)) {
         _uniTransfer(token, msg.sender, amount);
         emit FundsRescued(token, amount);
     }
@@ -100,14 +107,18 @@ abstract contract BaseEscrow is IBaseEscrow {
     /**
      * @dev Should verify that the computed escrow address matches the address of this contract.
      */
-    function _validateImmutables(Immutables calldata immutables) internal view virtual;
+    function _validateImmutables(
+        Immutables calldata immutables
+    ) internal view virtual;
 
     /**
      * @dev Computes the Keccak-256 hash of the secret.
      * @param secret The secret that unlocks the escrow.
      * @return ret The computed hash.
      */
-    function _keccakBytes32(bytes32 secret) private pure returns (bytes32 ret) {
+    function _keccakBytes32(
+        bytes32 secret
+    ) private pure returns (bytes32 ret) {
         assembly ("memory-safe") {
             mstore(0, secret)
             ret := keccak256(0, 0x20)

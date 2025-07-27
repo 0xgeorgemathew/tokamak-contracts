@@ -13,7 +13,6 @@ import { Address } from "solidity-utils/contracts/libraries/AddressLib.sol";
 import { Timelocks, TimelocksSettersLib } from "./TimelocksSettersLib.sol";
 
 library CrossChainTestLib {
-
     /**
      * Timelocks for the source chain.
      * withdrawal: Seconds between `deployedAt` and the start of the withdrawal period.
@@ -127,17 +126,10 @@ library CrossChainTestLib {
             uint32(block.timestamp)
         );
         timelocksDst = TimelocksSettersLib.init(
-            0,
-            0,
-            0,
-            0,
-            dstTimelocks.withdrawal,
-            dstTimelocks.publicWithdrawal,
-            dstTimelocks.cancellation,
-            uint32(block.timestamp)
+            0, 0, 0, 0, dstTimelocks.withdrawal, dstTimelocks.publicWithdrawal, dstTimelocks.cancellation, uint32(block.timestamp)
         );
     }
-    
+
     function buildAuctionDetails(
         uint24 gasBumpEstimate,
         uint32 gasPriceEstimate,
@@ -147,27 +139,17 @@ library CrossChainTestLib {
         uint24 initialRateBump,
         bytes memory auctionPoints
     ) internal pure returns (bytes memory auctionDetails) {
-        auctionDetails = abi.encodePacked(
-            gasBumpEstimate,
-            gasPriceEstimate,
-            startTime + delay,
-            duration,
-            initialRateBump,
-            auctionPoints
-        );
+        auctionDetails = abi.encodePacked(gasBumpEstimate, gasPriceEstimate, startTime + delay, duration, initialRateBump, auctionPoints);
     }
 
-    function buildMakerTraits(MakerTraitsParams memory params) internal pure returns (MakerTraits) {
-        uint256 data = 0
-            | uint256(params.series) << 160
-            | uint256(params.nonce) << 120
-            | uint256(params.expiry) << 80
-            | uint160(params.allowedSender) & ((1 << 80) - 1)
-            | (params.unwrapWeth == true ? _UNWRAP_WETH_FLAG : 0)
+    function buildMakerTraits(
+        MakerTraitsParams memory params
+    ) internal pure returns (MakerTraits) {
+        uint256 data = 0 | uint256(params.series) << 160 | uint256(params.nonce) << 120 | uint256(params.expiry) << 80
+            | uint160(params.allowedSender) & ((1 << 80) - 1) | (params.unwrapWeth == true ? _UNWRAP_WETH_FLAG : 0)
             | (params.allowMultipleFills == true ? _ALLOW_MULTIPLE_FILLS_FLAG : 0)
             | (params.allowPartialFill == false ? _NO_PARTIAL_FILLS_FLAG : 0)
-            | (params.shouldCheckEpoch == true ? _NEED_CHECK_EPOCH_MANAGER_FLAG : 0)
-            | (params.usePermit2 == true ? _USE_PERMIT2_FLAG : 0);
+            | (params.shouldCheckEpoch == true ? _NEED_CHECK_EPOCH_MANAGER_FLAG : 0) | (params.usePermit2 == true ? _USE_PERMIT2_FLAG : 0);
         return MakerTraits.wrap(data);
     }
 
@@ -181,13 +163,9 @@ library CrossChainTestLib {
         bytes memory interaction,
         uint256 threshold
     ) internal pure returns (TakerTraits, bytes memory) {
-        uint256 data = threshold
-            | (makingAmount ? _MAKER_AMOUNT_FLAG_TT : 0)
-            | (unwrapWeth ? _UNWRAP_WETH_FLAG_TT : 0)
-            | (skipMakerPermit ? _SKIP_ORDER_PERMIT_FLAG : 0)
-            | (usePermit2 ? _USE_PERMIT2_FLAG_TT : 0)
-            | (target != address(0) ? _ARGS_HAS_TARGET : 0)
-            | (extension.length << _ARGS_EXTENSION_LENGTH_OFFSET)
+        uint256 data = threshold | (makingAmount ? _MAKER_AMOUNT_FLAG_TT : 0) | (unwrapWeth ? _UNWRAP_WETH_FLAG_TT : 0)
+            | (skipMakerPermit ? _SKIP_ORDER_PERMIT_FLAG : 0) | (usePermit2 ? _USE_PERMIT2_FLAG_TT : 0)
+            | (target != address(0) ? _ARGS_HAS_TARGET : 0) | (extension.length << _ARGS_EXTENSION_LENGTH_OFFSET)
             | (interaction.length << _ARGS_INTERACTION_LENGTH_OFFSET);
         TakerTraits traits = TakerTraits.wrap(data);
         bytes memory targetBytes = target != address(0) ? abi.encodePacked(target) : abi.encodePacked("");
@@ -293,15 +271,7 @@ library CrossChainTestLib {
         uint256 dstSafetyDeposit,
         Timelocks timelocks
     ) internal pure returns (bytes memory) {
-        return (
-            abi.encode(
-                hashlock,
-                chainId,
-                token,
-                (srcSafetyDeposit << 128) | dstSafetyDeposit,
-                timelocks
-            )
-        );
+        return (abi.encode(hashlock, chainId, token, (srcSafetyDeposit << 128) | dstSafetyDeposit, timelocks));
     }
 
     function prepareDataSrc(
@@ -309,7 +279,7 @@ library CrossChainTestLib {
         EscrowDetails memory escrowDetails,
         address factory,
         IOrderMixin limitOrderProtocol
-    ) internal returns(SwapData memory swapData) {
+    ) internal returns (SwapData memory swapData) {
         swapData.extraData = buidDynamicData(
             escrowDetails.hashlock,
             block.chainid,

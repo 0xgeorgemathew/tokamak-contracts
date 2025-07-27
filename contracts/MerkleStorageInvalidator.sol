@@ -33,7 +33,9 @@ contract MerkleStorageInvalidator is IMerkleStorageInvalidator, ITakerInteractio
         _;
     }
 
-    constructor(address limitOrderProtocol) {
+    constructor(
+        address limitOrderProtocol
+    ) {
         _LIMIT_ORDER_PROTOCOL = limitOrderProtocol;
     }
 
@@ -43,13 +45,13 @@ contract MerkleStorageInvalidator is IMerkleStorageInvalidator, ITakerInteractio
      * Only Limit Order Protocol can call this function.
      */
     function takerInteraction(
-        IOrderMixin.Order calldata /* order */,
+        IOrderMixin.Order calldata, /* order */
         bytes calldata extension,
         bytes32 orderHash,
-        address /* taker */,
-        uint256 /* makingAmount */,
-        uint256 /* takingAmount */,
-        uint256 /* remainingMakingAmount */,
+        address, /* taker */
+        uint256, /* makingAmount */
+        uint256, /* takingAmount */
+        uint256, /* remainingMakingAmount */
         bytes calldata extraData
     ) external onlyLOP {
         bytes calldata postInteraction = extension.postInteractionTargetAndData();
@@ -61,9 +63,8 @@ contract MerkleStorageInvalidator is IMerkleStorageInvalidator, ITakerInteractio
         }
         uint240 rootShortened = uint240(uint256(extraDataArgs.hashlockInfo));
         bytes32 key = keccak256(abi.encodePacked(orderHash, rootShortened));
-        bytes32 rootCalculated = takerData.proof.processProofCalldata(
-            keccak256(abi.encodePacked(uint64(takerData.idx), takerData.secretHash))
-        );
+        bytes32 rootCalculated =
+            takerData.proof.processProofCalldata(keccak256(abi.encodePacked(uint64(takerData.idx), takerData.secretHash)));
         if (uint240(uint256(rootCalculated)) != rootShortened) revert InvalidProof();
         lastValidated[key] = ValidationData(takerData.idx + 1, takerData.secretHash);
     }

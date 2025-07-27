@@ -35,7 +35,7 @@ contract ResolverReentrancy is Ownable {
         _LOP = lop;
     }
 
-    receive() external payable {} // solhint-disable-line no-empty-blocks
+    receive() external payable { } // solhint-disable-line no-empty-blocks
 
     /**
      * @notice See {IResolverExample-deploySrc}.
@@ -68,11 +68,11 @@ contract ResolverReentrancy is Ownable {
     function takerInteraction(
         IOrderMixin.Order calldata order,
         bytes calldata extension,
-        bytes32 /* orderHash */,
-        address /* taker */,
-        uint256 /* makingAmount */,
-        uint256 /* takingAmount */,
-        uint256 /* remainingMakingAmount */,
+        bytes32, /* orderHash */
+        address, /* taker */
+        uint256, /* makingAmount */
+        uint256, /* takingAmount */
+        uint256, /* remainingMakingAmount */
         bytes calldata extraData
     ) external onlyLOP {
         _immutables.amount = 1;
@@ -81,9 +81,8 @@ contract ResolverReentrancy is Ownable {
         if (!success) revert IBaseEscrow.NativeTokenSendingFailure();
 
         _takerTraits = TakerTraits.wrap(
-            TakerTraits.unwrap(_takerTraits) &
-            ~(uint256(type(uint24).max) << _ARGS_INTERACTION_LENGTH_OFFSET) |
-            (extraData.length << _ARGS_INTERACTION_LENGTH_OFFSET)
+            TakerTraits.unwrap(_takerTraits) & ~(uint256(type(uint24).max) << _ARGS_INTERACTION_LENGTH_OFFSET)
+                | (extraData.length << _ARGS_INTERACTION_LENGTH_OFFSET)
         );
         bytes memory argsMem = abi.encodePacked(computed, extension, extraData);
         _LOP.fillOrderArgs(order, _r, _vs, 1, _takerTraits, argsMem);

@@ -39,7 +39,7 @@ contract ResolverExample is IResolverExample, Ownable {
         _LOP = lop;
     }
 
-    receive() external payable {} // solhint-disable-line no-empty-blocks
+    receive() external payable { } // solhint-disable-line no-empty-blocks
 
     /**
      * @notice See {IResolverExample-deploySrc}.
@@ -68,7 +68,7 @@ contract ResolverExample is IResolverExample, Ownable {
     /**
      * @notice See {IResolverExample-deployDst}.
      */
-    function deployDst(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external onlyOwner payable {
+    function deployDst(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external payable onlyOwner {
         _FACTORY.createDstEscrow{ value: msg.value }(dstImmutables, srcCancellationTimestamp);
     }
 

@@ -21,11 +21,12 @@ abstract contract Escrow is BaseEscrow, IEscrow {
     /// @notice See {IEscrow-PROXY_BYTECODE_HASH}.
     bytes32 public immutable PROXY_BYTECODE_HASH = ProxyHashLib.computeProxyBytecodeHash(address(this));
 
-
     /**
      * @dev Verifies that the computed escrow address matches the address of this contract.
      */
-    function _validateImmutables(Immutables calldata immutables) internal view virtual override {
+    function _validateImmutables(
+        Immutables calldata immutables
+    ) internal view virtual override {
         bytes32 salt = immutables.hash();
         if (Create2.computeAddress(salt, PROXY_BYTECODE_HASH, FACTORY) != address(this)) {
             revert InvalidImmutables();

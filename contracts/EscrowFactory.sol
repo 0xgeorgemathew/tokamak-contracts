@@ -14,7 +14,6 @@ import { EscrowDst } from "./EscrowDst.sol";
 import { EscrowSrc } from "./EscrowSrc.sol";
 import { MerkleStorageInvalidator } from "./MerkleStorageInvalidator.sol";
 
-
 /**
  * @title Escrow Factory contract
  * @notice Contract to create escrow contracts for cross-chain atomic swap.
@@ -29,9 +28,10 @@ contract EscrowFactory is BaseEscrowFactory {
         uint32 rescueDelaySrc,
         uint32 rescueDelayDst
     )
-    BaseExtension(limitOrderProtocol)
-    ResolverValidationExtension(feeToken, accessToken, owner)
-    MerkleStorageInvalidator(limitOrderProtocol) {
+        BaseExtension(limitOrderProtocol)
+        ResolverValidationExtension(feeToken, accessToken, owner)
+        MerkleStorageInvalidator(limitOrderProtocol)
+    {
         ESCROW_SRC_IMPLEMENTATION = address(new EscrowSrc(rescueDelaySrc, accessToken));
         ESCROW_DST_IMPLEMENTATION = address(new EscrowDst(rescueDelayDst, accessToken));
         _PROXY_SRC_BYTECODE_HASH = ProxyHashLib.computeProxyBytecodeHash(ESCROW_SRC_IMPLEMENTATION);

@@ -235,7 +235,6 @@ contract EscrowTest is BaseSetup {
         assertEq(usdc.balanceOf(address(swapData.srcClone)), balanceEscrow - (MAKING_AMOUNT));
     }
 
-
     function test_RescueFundsSrc() public {
         // deploy escrow
         CrossChainTestLib.SwapData memory swapData = _prepareDataSrc(true, false);
@@ -435,9 +434,8 @@ contract EscrowTest is BaseSetup {
     }
 
     function test_WithdrawByResolverDstNative() public {
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDstCustom(
-            HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0x00), DST_SAFETY_DEPOSIT
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) =
+            _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0x00), DST_SAFETY_DEPOSIT);
 
         // deploy escrow
         vm.startPrank(bob.addr);
@@ -738,9 +736,8 @@ contract EscrowTest is BaseSetup {
     }
 
     function test_NoFailedNativeTokenTransferWithdrawalDstNative() public {
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDstCustom(
-            HASHED_SECRET, TAKING_AMOUNT, address(escrowFactory), bob.addr, address(0x00), DST_SAFETY_DEPOSIT
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) =
+            _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, address(escrowFactory), bob.addr, address(0x00), DST_SAFETY_DEPOSIT);
 
         // deploy escrow
         vm.startPrank(bob.addr);
@@ -815,14 +812,7 @@ contract EscrowTest is BaseSetup {
         address receiver = charlie.addr;
         // deploy escrow
         CrossChainTestLib.SwapData memory swapData = _prepareDataSrcCustom(
-            HASHED_SECRET,
-            MAKING_AMOUNT,
-            TAKING_AMOUNT,
-            SRC_SAFETY_DEPOSIT,
-            DST_SAFETY_DEPOSIT,
-            receiver,
-            true,
-            false
+            HASHED_SECRET, MAKING_AMOUNT, TAKING_AMOUNT, SRC_SAFETY_DEPOSIT, DST_SAFETY_DEPOSIT, receiver, true, false
         );
 
         (bool success,) = address(swapData.srcClone).call{ value: SRC_SAFETY_DEPOSIT }("");
@@ -1010,9 +1000,8 @@ contract EscrowTest is BaseSetup {
 
     function test_CancelDstDifferentTarget() public {
         address target = charlie.addr;
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDstCustom(
-            HASHED_SECRET, TAKING_AMOUNT, alice.addr, target, address(dai), DST_SAFETY_DEPOSIT
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) =
+            _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, alice.addr, target, address(dai), DST_SAFETY_DEPOSIT);
 
         // deploy escrow
         vm.prank(bob.addr);
@@ -1041,9 +1030,8 @@ contract EscrowTest is BaseSetup {
     }
 
     function test_CancelDstWithNativeToken() public {
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) = _prepareDataDstCustom(
-            HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0), DST_SAFETY_DEPOSIT
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, IBaseEscrow dstClone) =
+            _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0), DST_SAFETY_DEPOSIT);
 
         // deploy escrow
         vm.startPrank(bob.addr);

@@ -55,8 +55,7 @@ contract TimelocksLibTest is BaseSetup {
             withdrawal: 2584807817,
             publicWithdrawal: 2584807817,
             cancellation: 2584807820,
-            publicCancellation:
-            2584807820
+            publicCancellation: 2584807820
         });
         dstTimelocks = CrossChainTestLib.DstTimelocks({ withdrawal: 2584807817, publicWithdrawal: 2584807817, cancellation: 2584807820 });
         (timelocks, timelocksDst) = CrossChainTestLib.setTimelocks(srcTimelocks, dstTimelocks);

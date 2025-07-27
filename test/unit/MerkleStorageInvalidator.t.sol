@@ -11,7 +11,6 @@ import { BaseSetup } from "../utils/BaseSetup.sol";
 import { CrossChainTestLib } from "../utils/libraries/CrossChainTestLib.sol";
 
 contract MerkleStorageInvalidatorTest is BaseSetup {
-
     Merkle public merkle = new Merkle();
     bytes32 public root;
 
@@ -50,9 +49,8 @@ contract MerkleStorageInvalidatorTest is BaseSetup {
             0,
             abi.encode(proof, idx, hashedSecrets[idx])
         );
-        (uint256 storedIndex, bytes32 storedLeaf) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
-            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
-        );
+        (uint256 storedIndex, bytes32 storedLeaf) =
+            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
         assertEq(storedIndex, idx + 1);
         assertEq(storedLeaf, hashedSecrets[idx]);
     }

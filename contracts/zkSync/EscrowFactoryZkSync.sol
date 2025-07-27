@@ -35,9 +35,10 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
         uint32 rescueDelaySrc,
         uint32 rescueDelayDst
     )
-    BaseExtension(limitOrderProtocol)
-    ResolverValidationExtension(feeToken, accessToken, owner)
-    MerkleStorageInvalidator(limitOrderProtocol) {
+        BaseExtension(limitOrderProtocol)
+        ResolverValidationExtension(feeToken, accessToken, owner)
+        MerkleStorageInvalidator(limitOrderProtocol)
+    {
         ESCROW_SRC_IMPLEMENTATION = address(new EscrowSrcZkSync(rescueDelaySrc, accessToken));
         ESCROW_DST_IMPLEMENTATION = address(new EscrowDstZkSync(rescueDelayDst, accessToken));
         ESCROW_SRC_INPUT_HASH = keccak256(abi.encode(ESCROW_SRC_IMPLEMENTATION));
@@ -57,14 +58,18 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
     /**
      * @notice See {IEscrowFactory-addressOfEscrowSrc}.
      */
-    function addressOfEscrowSrc(IBaseEscrow.Immutables calldata immutables) external view override returns (address) {
+    function addressOfEscrowSrc(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view override returns (address) {
         return ZkSyncLib.computeAddressZkSync(immutables.hash(), _PROXY_SRC_BYTECODE_HASH, address(this), ESCROW_SRC_INPUT_HASH);
     }
 
     /**
      * @notice See {IEscrowFactory-addressOfEscrowDst}.
      */
-    function addressOfEscrowDst(IBaseEscrow.Immutables calldata immutables) external view override returns (address) {
+    function addressOfEscrowDst(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view override returns (address) {
         return ZkSyncLib.computeAddressZkSync(immutables.hash(), _PROXY_DST_BYTECODE_HASH, address(this), ESCROW_DST_INPUT_HASH);
     }
 
@@ -76,6 +81,6 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
      * @return escrow The address of the deployed escrow contract.
      */
     function _deployEscrow(bytes32 salt, uint256 value, address implementation) internal override returns (address escrow) {
-        escrow = address(new MinimalProxyZkSync{salt: salt, value: value}(implementation));
+        escrow = address(new MinimalProxyZkSync{ salt: salt, value: value }(implementation));
     }
 }

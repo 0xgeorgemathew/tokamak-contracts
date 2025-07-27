@@ -21,9 +21,11 @@ contract Utils is CommonBase {
         nextUser = uint256(keccak256(abi.encodePacked(nextUser)));
         return user;
     }
-    
+
     // create users with 100 ETH balance each
-    function _createUsers(uint256 userNum) internal {
+    function _createUsers(
+        uint256 userNum
+    ) internal {
         users = new Wallet[](userNum);
         for (uint256 i = 0; i < userNum; i++) {
             Wallet memory user = _getNextUserAddress();

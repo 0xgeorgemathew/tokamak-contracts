@@ -10,7 +10,6 @@ import { IEscrowFactory } from "contracts/interfaces/IEscrowFactory.sol";
 import { IResolverExample } from "contracts/interfaces/IResolverExample.sol";
 import { Timelocks, TimelocksLib } from "contracts/libraries/TimelocksLib.sol";
 
-
 contract CancelSrc is Script {
     function run() external {
         address deployer = vm.envAddress("DEPLOYER_ADDRESS");

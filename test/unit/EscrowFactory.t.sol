@@ -73,14 +73,7 @@ contract EscrowFactoryTest is BaseSetup {
     function testFuzz_DeployCloneForMakerWithReceiver() public {
         address receiver = charlie.addr;
         CrossChainTestLib.SwapData memory swapData = _prepareDataSrcCustom(
-            HASHED_SECRET,
-            MAKING_AMOUNT,
-            TAKING_AMOUNT,
-            SRC_SAFETY_DEPOSIT,
-            DST_SAFETY_DEPOSIT,
-            receiver,
-            true,
-            false
+            HASHED_SECRET, MAKING_AMOUNT, TAKING_AMOUNT, SRC_SAFETY_DEPOSIT, DST_SAFETY_DEPOSIT, receiver, true, false
         );
 
         (bool success,) = address(swapData.srcClone).call{ value: SRC_SAFETY_DEPOSIT }("");
@@ -115,9 +108,8 @@ contract EscrowFactoryTest is BaseSetup {
 
     function testFuzz_DeployCloneForTaker(bytes32 secret, uint56 amount) public {
         uint256 safetyDeposit = uint64(amount) * 10 / 100;
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, EscrowDst dstClone) = _prepareDataDstCustom(
-            secret, amount, alice.addr, bob.addr, address(dai), safetyDeposit
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp, EscrowDst dstClone) =
+            _prepareDataDstCustom(secret, amount, alice.addr, bob.addr, address(dai), safetyDeposit);
         uint256 balanceBobNative = bob.addr.balance;
         uint256 balanceBob = dai.balanceOf(bob.addr);
         uint256 balanceEscrow = dai.balanceOf(address(dstClone));
@@ -223,9 +215,8 @@ contract EscrowFactoryTest is BaseSetup {
     }
 
     function test_NoInsufficientBalanceNativeDeploymentForTaker() public {
-        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp,) = _prepareDataDstCustom(
-            HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0x00), DST_SAFETY_DEPOSIT
-        );
+        (IBaseEscrow.Immutables memory immutables, uint256 srcCancellationTimestamp,) =
+            _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, alice.addr, bob.addr, address(0x00), DST_SAFETY_DEPOSIT);
 
         // deploy escrow
         vm.prank(bob.addr);

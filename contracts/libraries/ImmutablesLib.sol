@@ -16,7 +16,9 @@ library ImmutablesLib {
      * @param immutables The immutables to hash.
      * @return ret The computed hash.
      */
-    function hash(IBaseEscrow.Immutables calldata immutables) internal pure returns(bytes32 ret) {
+    function hash(
+        IBaseEscrow.Immutables calldata immutables
+    ) internal pure returns (bytes32 ret) {
         assembly ("memory-safe") {
             let ptr := mload(0x40)
             calldatacopy(ptr, immutables, ESCROW_IMMUTABLES_SIZE)
@@ -29,7 +31,9 @@ library ImmutablesLib {
      * @param immutables The immutables to hash.
      * @return ret The computed hash.
      */
-    function hashMem(IBaseEscrow.Immutables memory immutables) internal pure returns(bytes32 ret) {
+    function hashMem(
+        IBaseEscrow.Immutables memory immutables
+    ) internal pure returns (bytes32 ret) {
         assembly ("memory-safe") {
             ret := keccak256(immutables, ESCROW_IMMUTABLES_SIZE)
         }

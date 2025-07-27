@@ -25,26 +25,16 @@ contract DeployEscrowDst is Script {
         uint256 safetyDeposit = 1;
         bytes32 secret = keccak256(abi.encodePacked("secret"));
         bytes32 hashlock = keccak256(abi.encode(secret));
-        
+
         IBaseEscrow.Immutables memory escrowImmutables = CrossChainTestLib.buildDstEscrowImmutables(
-            orderHash,
-            hashlock,
-            dstAmount,
-            maker,
-            address(resolver),
-            dstToken,
-            safetyDeposit,
-            timelocks
+            orderHash, hashlock, dstAmount, maker, address(resolver), dstToken, safetyDeposit, timelocks
         );
 
         uint256 srcCancellationTimestamp = type(uint32).max;
 
         {
             vm.startBroadcast(deployerPK);
-            resolver.deployDst{ value: dstAmount + safetyDeposit }(
-                escrowImmutables,
-                srcCancellationTimestamp
-            );
+            resolver.deployDst{ value: dstAmount + safetyDeposit }(escrowImmutables, srcCancellationTimestamp);
             vm.stopBroadcast();
         }
     }

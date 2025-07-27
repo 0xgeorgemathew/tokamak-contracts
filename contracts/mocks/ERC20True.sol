@@ -15,7 +15,9 @@ contract ERC20True {
         return true;
     }
 
-    function balanceOf(address) public pure returns (uint256) {
+    function balanceOf(
+        address
+    ) public pure returns (uint256) {
         return 0;
     }
 

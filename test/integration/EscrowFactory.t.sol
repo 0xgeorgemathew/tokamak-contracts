@@ -152,7 +152,7 @@ contract IntegrationEscrowFactoryTest is BaseSetup {
     }
 
     function test_NoResolverReentrancy() public {
-        ResolverReentrancy badResolver = new ResolverReentrancy(escrowFactory, limitOrderProtocol, address(this)); 
+        ResolverReentrancy badResolver = new ResolverReentrancy(escrowFactory, limitOrderProtocol, address(this));
         resolvers[0] = address(badResolver);
         vm.deal(address(badResolver), 100 ether);
 
@@ -175,7 +175,6 @@ contract IntegrationEscrowFactoryTest is BaseSetup {
 
         vm.warp(1710288000); // set current timestamp
         (timelocks, timelocksDst) = CrossChainTestLib.setTimelocks(srcTimelocks, dstTimelocks);
-
 
         CrossChainTestLib.SwapData memory swapData = _prepareDataSrcHashlock(rootPlusAmount, false, true);
 
@@ -200,15 +199,7 @@ contract IntegrationEscrowFactoryTest is BaseSetup {
         );
 
         vm.expectRevert(IEscrowFactory.InvalidPartialFill.selector);
-        badResolver.deploySrc(
-            swapData.immutables,
-            swapData.order,
-            r,
-            vs,
-            makingAmount - 2,
-            takerTraits,
-            args
-        );
+        badResolver.deploySrc(swapData.immutables, swapData.order, r, vs, makingAmount - 2, takerTraits, args);
     }
 
     /* solhint-enable func-name-mixedcase */
