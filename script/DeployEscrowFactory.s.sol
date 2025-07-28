@@ -17,7 +17,8 @@ contract DeployEscrowFactory is Script {
 
     address public constant LOP = 0x689F20F2e2901f32E255e8016Ad9D58b61D353b3; // All chains
     address public constant ACCESS_TOKEN = 0xACCe550000159e70908C0499a1119D04e7039C28; // All chains
-    ICreate3Deployer public constant CREATE3_DEPLOYER = ICreate3Deployer(0x65B3Db8bAeF0215A1F9B14c506D2a3078b2C84AE); // All chains
+    ICreate3Deployer public constant CREATE3_DEPLOYER = ICreate3Deployer(0x65B3Db8bAeF0215A1F9B14c506D2a3078b2C84AE); // All
+        // chains
 
     mapping(uint256 => address) public FEE_TOKEN; // solhint-disable-line var-name-mixedcase
 
@@ -42,7 +43,8 @@ contract DeployEscrowFactory is Script {
         address escrowFactory = CREATE3_DEPLOYER.deploy(
             CROSSCHAIN_SALT,
             abi.encodePacked(
-                type(EscrowFactory).creationCode, abi.encode(LOP, feeToken, ACCESS_TOKEN, feeBankOwner, RESCUE_DELAY, RESCUE_DELAY)
+                type(EscrowFactory).creationCode,
+                abi.encode(LOP, feeToken, ACCESS_TOKEN, feeBankOwner, RESCUE_DELAY, RESCUE_DELAY)
             )
         );
         vm.stopBroadcast();

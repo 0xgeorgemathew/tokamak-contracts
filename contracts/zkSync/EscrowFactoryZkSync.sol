@@ -4,7 +4,8 @@ pragma solidity 0.8.23;
 
 import { IERC20 } from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import { BaseExtension } from "limit-order-settlement/contracts/extensions/BaseExtension.sol";
-import { ResolverValidationExtension } from "limit-order-settlement/contracts/extensions/ResolverValidationExtension.sol";
+import { ResolverValidationExtension } from
+    "limit-order-settlement/contracts/extensions/ResolverValidationExtension.sol";
 
 import { BaseEscrowFactory } from "../BaseEscrowFactory.sol";
 import { MerkleStorageInvalidator } from "../MerkleStorageInvalidator.sol";
@@ -61,7 +62,9 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
     function addressOfEscrowSrc(
         IBaseEscrow.Immutables calldata immutables
     ) external view override returns (address) {
-        return ZkSyncLib.computeAddressZkSync(immutables.hash(), _PROXY_SRC_BYTECODE_HASH, address(this), ESCROW_SRC_INPUT_HASH);
+        return ZkSyncLib.computeAddressZkSync(
+            immutables.hash(), _PROXY_SRC_BYTECODE_HASH, address(this), ESCROW_SRC_INPUT_HASH
+        );
     }
 
     /**
@@ -70,7 +73,9 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
     function addressOfEscrowDst(
         IBaseEscrow.Immutables calldata immutables
     ) external view override returns (address) {
-        return ZkSyncLib.computeAddressZkSync(immutables.hash(), _PROXY_DST_BYTECODE_HASH, address(this), ESCROW_DST_INPUT_HASH);
+        return ZkSyncLib.computeAddressZkSync(
+            immutables.hash(), _PROXY_DST_BYTECODE_HASH, address(this), ESCROW_DST_INPUT_HASH
+        );
     }
 
     /**
@@ -80,7 +85,11 @@ contract EscrowFactoryZkSync is BaseEscrowFactory {
      * @param implementation Address of the implementation.
      * @return escrow The address of the deployed escrow contract.
      */
-    function _deployEscrow(bytes32 salt, uint256 value, address implementation) internal override returns (address escrow) {
+    function _deployEscrow(
+        bytes32 salt,
+        uint256 value,
+        address implementation
+    ) internal override returns (address escrow) {
         escrow = address(new MinimalProxyZkSync{ salt: salt, value: value }(implementation));
     }
 }

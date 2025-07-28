@@ -8,7 +8,9 @@ via-ir = true
 evm_version = 'shanghai'
 solc_version = '0.8.23'
 gas_reports = ["EscrowSrc", "EscrowDst", "EscrowFactory", "MerkleStorageInvalidator"]
-
+metadata = true
+metadata_hash = "none"  # disable ipfs
+use_literal_content = true # store source code in the json file directly
 fs_permissions = [
     { access = "read", path = "./examples/config/config.json" },
     { access = "read", path = "./broadcast" },
@@ -20,7 +22,7 @@ fs_permissions = [
 optimizerSteps = ''
 
 [fmt]
-line_length = 140
+line_length = 120
 bracket_spacing = true
 multiline_func_header = 'params_first'
 wrap_comments = true
@@ -34,3 +36,15 @@ libs = ['lib']
 fallback_oz = true
 is_system = false
 mode = "3"
+
+[rpc_endpoints]
+monad_testnet = "${MONAD_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
+# Configure verifiers for different chains
+[etherscan]
+# For Monad Testnet (Sourcify)
+monad_testnet = { key = "DUMMY_KEY", url = "https://sourcify-api-monad.blockvision.org", chain = 10143 }
+
+# For Sepolia (Etherscan)
+sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 11155111 }

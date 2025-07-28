@@ -22,8 +22,10 @@ interface IResolverExample {
      * @param r R component of signature.
      * @param vs VS component of signature.
      * @param amount Taker amount to fill
-     * @param takerTraits Specifies threshold as maximum allowed takingAmount when takingAmount is zero, otherwise specifies
-     * minimum allowed makingAmount. The 2nd (0 based index) highest bit specifies whether taker wants to skip maker's permit.
+     * @param takerTraits Specifies threshold as maximum allowed takingAmount when takingAmount is zero, otherwise
+     * specifies
+     * minimum allowed makingAmount. The 2nd (0 based index) highest bit specifies whether taker wants to skip maker's
+     * permit.
      * @param args Arguments that are used by the taker (target, extension, interaction, permit).
      */
     function deploySrc(
@@ -41,7 +43,10 @@ interface IResolverExample {
      * @param dstImmutables The immutables of the escrow contract that are used in deployment.
      * @param srcCancellationTimestamp The start of the cancellation period for the source chain.
      */
-    function deployDst(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external payable;
+    function deployDst(
+        IBaseEscrow.Immutables calldata dstImmutables,
+        uint256 srcCancellationTimestamp
+    ) external payable;
 
     /**
      * @notice Allows the owner to make arbitrary calls to other contracts on behalf of this contract.

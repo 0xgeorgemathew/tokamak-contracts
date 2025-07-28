@@ -185,7 +185,8 @@ contract IntegrationEscrowFactoryTest is BaseSetup {
         bytes32 vs = bytes32((uint256(v - 27) << 255)) | s;
 
         bytes memory interaction = abi.encodePacked(address(badResolver));
-        bytes memory interactionFull = abi.encodePacked(interaction, escrowFactory, abi.encode(proof, idx, hashedSecrets[idx]));
+        bytes memory interactionFull =
+            abi.encodePacked(interaction, escrowFactory, abi.encode(proof, idx, hashedSecrets[idx]));
 
         (TakerTraits takerTraits, bytes memory args) = CrossChainTestLib.buildTakerTraits(
             true, // makingAmount

@@ -15,7 +15,8 @@ import { Escrow } from "./Escrow.sol";
 /**
  * @title Destination Escrow contract for cross-chain atomic swap.
  * @notice Contract to initially lock funds and then unlock them with verification of the secret presented.
- * @dev Funds are locked in at the time of contract deployment. For this taker calls the `EscrowFactory.createDstEscrow` function.
+ * @dev Funds are locked in at the time of contract deployment. For this taker calls the `EscrowFactory.createDstEscrow`
+ * function.
  * To perform any action, the caller must provide the same Immutables values used to deploy the clone contract.
  * @custom:security-contact security@1inch.io
  */
@@ -29,7 +30,8 @@ contract EscrowDst is Escrow, IEscrowDst {
     /**
      * @notice See {IBaseEscrow-withdraw}.
      * @dev The function works on the time intervals highlighted with capital letters:
-     * ---- contract deployed --/-- finality --/-- PRIVATE WITHDRAWAL --/-- PUBLIC WITHDRAWAL --/-- private cancellation ----
+     * ---- contract deployed --/-- finality --/-- PRIVATE WITHDRAWAL --/-- PUBLIC WITHDRAWAL --/-- private cancellation
+     * ----
      */
     function withdraw(
         bytes32 secret,
@@ -46,7 +48,8 @@ contract EscrowDst is Escrow, IEscrowDst {
     /**
      * @notice See {IBaseEscrow-publicWithdraw}.
      * @dev The function works on the time intervals highlighted with capital letters:
-     * ---- contract deployed --/-- finality --/-- private withdrawal --/-- PUBLIC WITHDRAWAL --/-- private cancellation ----
+     * ---- contract deployed --/-- finality --/-- private withdrawal --/-- PUBLIC WITHDRAWAL --/-- private cancellation
+     * ----
      */
     function publicWithdraw(
         bytes32 secret,
@@ -63,7 +66,8 @@ contract EscrowDst is Escrow, IEscrowDst {
     /**
      * @notice See {IBaseEscrow-cancel}.
      * @dev The function works on the time interval highlighted with capital letters:
-     * ---- contract deployed --/-- finality --/-- private withdrawal --/-- public withdrawal --/-- PRIVATE CANCELLATION ----
+     * ---- contract deployed --/-- finality --/-- private withdrawal --/-- public withdrawal --/-- PRIVATE CANCELLATION
+     * ----
      */
     function cancel(
         Immutables calldata immutables

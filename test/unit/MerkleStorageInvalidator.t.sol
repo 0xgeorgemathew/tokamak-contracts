@@ -49,8 +49,9 @@ contract MerkleStorageInvalidatorTest is BaseSetup {
             0,
             abi.encode(proof, idx, hashedSecrets[idx])
         );
-        (uint256 storedIndex, bytes32 storedLeaf) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex, bytes32 storedLeaf) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, idx + 1);
         assertEq(storedLeaf, hashedSecrets[idx]);
     }
@@ -108,8 +109,9 @@ contract MerkleStorageInvalidatorTest is BaseSetup {
         // Calculate the intermediate node to pass as a value
         bytes32 firstInterNode = merkle.hashLeafPairs(hashedPairs[idx], proof[0]);
 
-        (uint256 fakeIdx, bytes32 fakeSecretHash) =
-            uint256(firstInterNode) > uint256(proof[1]) ? (uint256(proof[1]), firstInterNode) : (uint256(firstInterNode), proof[1]);
+        (uint256 fakeIdx, bytes32 fakeSecretHash) = uint256(firstInterNode) > uint256(proof[1])
+            ? (uint256(proof[1]), firstInterNode)
+            : (uint256(firstInterNode), proof[1]);
 
         bytes32[] memory shortenedProof = new bytes32[](1);
         shortenedProof[0] = proof[proof.length - 1];

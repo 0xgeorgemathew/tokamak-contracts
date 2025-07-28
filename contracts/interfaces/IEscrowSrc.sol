@@ -22,7 +22,8 @@ interface IEscrowSrc is IEscrow {
 
     /**
      * @notice Withdraws funds to the taker.
-     * @dev Withdrawal can only be made during the public withdrawal period and with secret with hash matches the hashlock.
+     * @dev Withdrawal can only be made during the public withdrawal period and with secret with hash matches the
+     * hashlock.
      * @param secret The secret that unlocks the escrow.
      * @param immutables The immutables of the escrow contract.
      */

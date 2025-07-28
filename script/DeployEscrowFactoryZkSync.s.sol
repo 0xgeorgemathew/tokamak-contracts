@@ -21,7 +21,8 @@ contract DeployEscrowFactoryZkSync is Script {
         address feeBankOwner = deployer;
 
         vm.startBroadcast();
-        EscrowFactoryZkSync escrowFactory = new EscrowFactoryZkSync(LOP, FEE_TOKEN, ACCESS_TOKEN, feeBankOwner, RESCUE_DELAY, RESCUE_DELAY);
+        EscrowFactoryZkSync escrowFactory =
+            new EscrowFactoryZkSync(LOP, FEE_TOKEN, ACCESS_TOKEN, feeBankOwner, RESCUE_DELAY, RESCUE_DELAY);
         vm.stopBroadcast();
 
         console.log("Escrow Factory deployed at: ", address(escrowFactory));

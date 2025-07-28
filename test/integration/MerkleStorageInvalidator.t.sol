@@ -88,14 +88,16 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         uint256 partsAmount,
         uint256 validatedIndex
     ) internal pure returns (bool) {
-        uint256 calculatedIndex = (orderMakingAmount - remainingMakingAmount + makingAmount - 1) * partsAmount / orderMakingAmount;
+        uint256 calculatedIndex =
+            (orderMakingAmount - remainingMakingAmount + makingAmount - 1) * partsAmount / orderMakingAmount;
 
         if (remainingMakingAmount == makingAmount) {
             // The last secret must be used for the last fill.
             return (calculatedIndex + 2 == validatedIndex);
         } else if (orderMakingAmount != remainingMakingAmount) {
             // Calculate the previous fill index only if this is not the first fill.
-            uint256 prevCalculatedIndex = (orderMakingAmount - remainingMakingAmount - 1) * partsAmount / orderMakingAmount;
+            uint256 prevCalculatedIndex =
+                (orderMakingAmount - remainingMakingAmount - 1) * partsAmount / orderMakingAmount;
             if (calculatedIndex == prevCalculatedIndex) return false;
         }
 
@@ -502,8 +504,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(address(srcClone2)), makingAmount2);
-        (uint256 storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, idx + 1);
     }
 
@@ -635,8 +638,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(address(srcClone2)), makingAmount2);
-        (uint256 storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, PARTS_AMOUNT + 1);
     }
 
@@ -723,8 +727,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(address(srcClone2)), makingAmount2);
-        (uint256 storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, PARTS_AMOUNT + 1);
     }
 
@@ -771,8 +776,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(srcClone), makingAmount);
-        (uint256 storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, PARTS_AMOUNT);
 
         // ------------ 2nd fill ------------ //
@@ -814,8 +820,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(address(srcClone2)), makingAmount2);
-        (storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, SECRETS_AMOUNT);
     }
 
@@ -922,8 +929,9 @@ contract MerkleStorageInvalidatorIntTest is BaseSetup {
         );
 
         assertEq(usdc.balanceOf(srcClone), makingAmount);
-        (uint256 storedIndex,) =
-            IMerkleStorageInvalidator(escrowFactory).lastValidated(keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root)))));
+        (uint256 storedIndex,) = IMerkleStorageInvalidator(escrowFactory).lastValidated(
+            keccak256(abi.encodePacked(swapData.orderHash, uint240(uint256(root))))
+        );
         assertEq(storedIndex, idx + 1);
 
         // ------------ 2nd fill, forged proof ------------ //

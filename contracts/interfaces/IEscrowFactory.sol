@@ -10,7 +10,8 @@ import { IBaseEscrow } from "./IBaseEscrow.sol";
 
 /**
  * @title Escrow Factory interface for cross-chain atomic swap.
- * @notice Interface to deploy escrow contracts for the destination chain and to get the deterministic address of escrow on both chains.
+ * @notice Interface to deploy escrow contracts for the destination chain and to get the deterministic address of escrow
+ * on both chains.
  * @custom:security-contact security@1inch.io
  */
 interface IEscrowFactory {
@@ -63,7 +64,10 @@ interface IEscrowFactory {
      * @param dstImmutables The immutables of the escrow contract that are used in deployment.
      * @param srcCancellationTimestamp The start of the cancellation period for the source chain.
      */
-    function createDstEscrow(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external payable;
+    function createDstEscrow(
+        IBaseEscrow.Immutables calldata dstImmutables,
+        uint256 srcCancellationTimestamp
+    ) external payable;
 
     /**
      * @notice Returns the deterministic address of the source escrow based on the salt.

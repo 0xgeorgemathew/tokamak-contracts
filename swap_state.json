@@ -1,0 +1,16 @@
+{
+  "secret": "0x62fe0eb264bfbd55ebb04a2466421363e12c8cd0c43a574aaa3149c3b7de18a4",
+  "hashlock": "0x753c228ec5a396c84d32864112b5e267af4a78289d4f4bc2b4b42bdb11a35c14",
+  "orderHash": "0x4c1a159f117c8cc864728be454535d0ae160ae1f83b7795482189f875861ca0d",
+  "deploymentTime": 1753678164,
+  "srcAmount": "1000000000000000000",
+  "dstAmount": "500000000000000000",
+  "safetyDeposit": "10000000000000000",
+  "dstEscrow": "0xcD7610F8abb8B9dEd4a3A4f0227194b9Ff39Ef0B",
+  "srcEscrow": "0xCE4A03D6944b1225730eFA8858e2C05D7ac4DF62",
+  "sepoliaFactory": "0xD0D22777D5047ad3Dc90f2F4307fA93D141ab7EF",
+  "sepoliaToken": "0x67693020Ee73064C17A2B7773a2cb2945E70Cb5E",
+  "monadFactory": "0x33e1b70F5EDA06bdBebC4e4E13Ac16A82c7f2b69",
+  "monadToken": "0x0E0C3aBcB3ea44303fDCff49682F45a6aFc4B057",
+  "timelockDuration": 60
+}

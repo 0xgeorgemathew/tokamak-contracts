@@ -50,8 +50,12 @@ contract BaseSetup is Test, Utils {
     Timelocks internal timelocks;
     Timelocks internal timelocksDst;
 
-    CrossChainTestLib.SrcTimelocks internal srcTimelocks =
-        CrossChainTestLib.SrcTimelocks({ withdrawal: 120, publicWithdrawal: 500, cancellation: 1020, publicCancellation: 1530 });
+    CrossChainTestLib.SrcTimelocks internal srcTimelocks = CrossChainTestLib.SrcTimelocks({
+        withdrawal: 120,
+        publicWithdrawal: 500,
+        cancellation: 1020,
+        publicCancellation: 1530
+    });
     CrossChainTestLib.DstTimelocks internal dstTimelocks =
         CrossChainTestLib.DstTimelocks({ withdrawal: 300, publicWithdrawal: 540, cancellation: 900 });
     bytes internal auctionPoints = abi.encodePacked(
@@ -122,10 +126,13 @@ contract BaseSetup is Test, Utils {
         limitOrderProtocol = new LimitOrderProtocol(IWETH(address(0)));
 
         if (isZkSync) {
-            escrowFactory =
-                new EscrowFactoryZkSync(address(limitOrderProtocol), inch, accessToken, charlie.addr, RESCUE_DELAY, RESCUE_DELAY);
+            escrowFactory = new EscrowFactoryZkSync(
+                address(limitOrderProtocol), inch, accessToken, charlie.addr, RESCUE_DELAY, RESCUE_DELAY
+            );
         } else {
-            escrowFactory = new EscrowFactory(address(limitOrderProtocol), inch, accessToken, charlie.addr, RESCUE_DELAY, RESCUE_DELAY);
+            escrowFactory = new EscrowFactory(
+                address(limitOrderProtocol), inch, accessToken, charlie.addr, RESCUE_DELAY, RESCUE_DELAY
+            );
         }
         escrowSrc = EscrowSrc(escrowFactory.ESCROW_SRC_IMPLEMENTATION());
         escrowDst = EscrowDst(escrowFactory.ESCROW_DST_IMPLEMENTATION());
@@ -138,9 +145,19 @@ contract BaseSetup is Test, Utils {
         vm.label(address(feeBank), "FeeBank");
     }
 
-    function _prepareDataSrc(bool fakeOrder, bool allowMultipleFills) internal returns (CrossChainTestLib.SwapData memory) {
+    function _prepareDataSrc(
+        bool fakeOrder,
+        bool allowMultipleFills
+    ) internal returns (CrossChainTestLib.SwapData memory) {
         return _prepareDataSrcCustom(
-            HASHED_SECRET, MAKING_AMOUNT, TAKING_AMOUNT, SRC_SAFETY_DEPOSIT, DST_SAFETY_DEPOSIT, address(0), fakeOrder, allowMultipleFills
+            HASHED_SECRET,
+            MAKING_AMOUNT,
+            TAKING_AMOUNT,
+            SRC_SAFETY_DEPOSIT,
+            DST_SAFETY_DEPOSIT,
+            address(0),
+            fakeOrder,
+            allowMultipleFills
         );
     }
 
@@ -150,7 +167,14 @@ contract BaseSetup is Test, Utils {
         bool allowMultipleFills
     ) internal returns (CrossChainTestLib.SwapData memory) {
         return _prepareDataSrcCustom(
-            hashlock, MAKING_AMOUNT, TAKING_AMOUNT, SRC_SAFETY_DEPOSIT, DST_SAFETY_DEPOSIT, address(0), fakeOrder, allowMultipleFills
+            hashlock,
+            MAKING_AMOUNT,
+            TAKING_AMOUNT,
+            SRC_SAFETY_DEPOSIT,
+            DST_SAFETY_DEPOSIT,
+            address(0),
+            fakeOrder,
+            allowMultipleFills
         );
     }
 
@@ -202,7 +226,9 @@ contract BaseSetup is Test, Utils {
         view
         returns (IBaseEscrow.Immutables memory escrowImmutables, uint256 srcCancellationTimestamp, EscrowDst escrow)
     {
-        return _prepareDataDstCustom(HASHED_SECRET, TAKING_AMOUNT, alice.addr, resolvers[0], address(dai), DST_SAFETY_DEPOSIT);
+        return _prepareDataDstCustom(
+            HASHED_SECRET, TAKING_AMOUNT, alice.addr, resolvers[0], address(dai), DST_SAFETY_DEPOSIT
+        );
     }
 
     function _prepareDataDstCustom(
@@ -215,9 +241,11 @@ contract BaseSetup is Test, Utils {
     ) internal view returns (IBaseEscrow.Immutables memory, uint256, EscrowDst) {
         bytes32 orderHash = bytes32(block.timestamp); // fake order hash
         uint256 srcCancellationTimestamp = block.timestamp + srcTimelocks.cancellation;
-        IBaseEscrow.Immutables memory escrowImmutables =
-            CrossChainTestLib.buildDstEscrowImmutables(orderHash, hashlock, amount, maker, taker, token, safetyDeposit, timelocksDst);
-        return (escrowImmutables, srcCancellationTimestamp, EscrowDst(escrowFactory.addressOfEscrowDst(escrowImmutables)));
+        IBaseEscrow.Immutables memory escrowImmutables = CrossChainTestLib.buildDstEscrowImmutables(
+            orderHash, hashlock, amount, maker, taker, token, safetyDeposit, timelocksDst
+        );
+        return
+            (escrowImmutables, srcCancellationTimestamp, EscrowDst(escrowFactory.addressOfEscrowDst(escrowImmutables)));
     }
 }
 

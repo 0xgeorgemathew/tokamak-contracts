@@ -126,7 +126,14 @@ library CrossChainTestLib {
             uint32(block.timestamp)
         );
         timelocksDst = TimelocksSettersLib.init(
-            0, 0, 0, 0, dstTimelocks.withdrawal, dstTimelocks.publicWithdrawal, dstTimelocks.cancellation, uint32(block.timestamp)
+            0,
+            0,
+            0,
+            0,
+            dstTimelocks.withdrawal,
+            dstTimelocks.publicWithdrawal,
+            dstTimelocks.cancellation,
+            uint32(block.timestamp)
         );
     }
 
@@ -139,7 +146,9 @@ library CrossChainTestLib {
         uint24 initialRateBump,
         bytes memory auctionPoints
     ) internal pure returns (bytes memory auctionDetails) {
-        auctionDetails = abi.encodePacked(gasBumpEstimate, gasPriceEstimate, startTime + delay, duration, initialRateBump, auctionPoints);
+        auctionDetails = abi.encodePacked(
+            gasBumpEstimate, gasPriceEstimate, startTime + delay, duration, initialRateBump, auctionPoints
+        );
     }
 
     function buildMakerTraits(
@@ -149,7 +158,8 @@ library CrossChainTestLib {
             | uint160(params.allowedSender) & ((1 << 80) - 1) | (params.unwrapWeth == true ? _UNWRAP_WETH_FLAG : 0)
             | (params.allowMultipleFills == true ? _ALLOW_MULTIPLE_FILLS_FLAG : 0)
             | (params.allowPartialFill == false ? _NO_PARTIAL_FILLS_FLAG : 0)
-            | (params.shouldCheckEpoch == true ? _NEED_CHECK_EPOCH_MANAGER_FLAG : 0) | (params.usePermit2 == true ? _USE_PERMIT2_FLAG : 0);
+            | (params.shouldCheckEpoch == true ? _NEED_CHECK_EPOCH_MANAGER_FLAG : 0)
+            | (params.usePermit2 == true ? _USE_PERMIT2_FLAG : 0);
         return MakerTraits.wrap(data);
     }
 
@@ -291,7 +301,8 @@ library CrossChainTestLib {
 
         bytes memory whitelist = abi.encodePacked(uint32(block.timestamp)); // auction start time
         for (uint256 i = 0; i < orderDetails.resolvers.length; i++) {
-            whitelist = abi.encodePacked(whitelist, uint80(uint160(orderDetails.resolvers[i])), uint16(0)); // resolver address, time delta
+            whitelist = abi.encodePacked(whitelist, uint80(uint160(orderDetails.resolvers[i])), uint16(0)); // resolver
+                // address, time delta
         }
 
         if (escrowDetails.fakeOrder) {
@@ -346,7 +357,8 @@ library CrossChainTestLib {
 
         swapData.srcClone = EscrowSrc(BaseEscrowFactory(factory).addressOfEscrowSrc(swapData.immutables));
         // 0x08 - whitelist length = 1, 0x01 - turn on resolver fee
-        swapData.extraData = abi.encodePacked(orderDetails.resolverFee, whitelist, bytes1(0x08) | bytes1(0x01), swapData.extraData);
+        swapData.extraData =
+            abi.encodePacked(orderDetails.resolverFee, whitelist, bytes1(0x08) | bytes1(0x01), swapData.extraData);
     }
 
     function buildDstEscrowImmutables(

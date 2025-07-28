@@ -10,7 +10,8 @@ import { SafeERC20 } from "solidity-utils/contracts/libraries/SafeERC20.sol";
 
 import { IOrderMixin } from "limit-order-protocol/contracts/interfaces/IOrderMixin.sol";
 import { MakerTraitsLib } from "limit-order-protocol/contracts/libraries/MakerTraitsLib.sol";
-import { ResolverValidationExtension } from "limit-order-settlement/contracts/extensions/ResolverValidationExtension.sol";
+import { ResolverValidationExtension } from
+    "limit-order-settlement/contracts/extensions/ResolverValidationExtension.sol";
 
 import { ImmutablesLib } from "./libraries/ImmutablesLib.sol";
 import { Timelocks, TimelocksLib } from "./libraries/TimelocksLib.sol";
@@ -64,7 +65,14 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
     ) internal override(ResolverValidationExtension) {
         uint256 superArgsLength = extraData.length - SRC_IMMUTABLES_LENGTH;
         super._postInteraction(
-            order, extension, orderHash, taker, makingAmount, takingAmount, remainingMakingAmount, extraData[:superArgsLength]
+            order,
+            extension,
+            orderHash,
+            taker,
+            makingAmount,
+            takingAmount,
+            remainingMakingAmount,
+            extraData[:superArgsLength]
         );
 
         ExtraDataArgs calldata extraDataArgs;
@@ -80,7 +88,11 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
             bytes32 key = keccak256(abi.encodePacked(orderHash, uint240(uint256(extraDataArgs.hashlockInfo))));
             ValidationData memory validated = lastValidated[key];
             hashlock = validated.leaf;
-            if (!_isValidPartialFill(makingAmount, remainingMakingAmount, order.makingAmount, partsAmount, validated.index)) {
+            if (
+                !_isValidPartialFill(
+                    makingAmount, remainingMakingAmount, order.makingAmount, partsAmount, validated.index
+                )
+            ) {
                 revert InvalidPartialFill();
             }
         } else {
@@ -110,7 +122,10 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
 
         bytes32 salt = immutables.hashMem();
         address escrow = _deployEscrow(salt, 0, ESCROW_SRC_IMPLEMENTATION);
-        if (escrow.balance < immutables.safetyDeposit || IERC20(order.makerAsset.get()).safeBalanceOf(escrow) < makingAmount) {
+        if (
+            escrow.balance < immutables.safetyDeposit
+                || IERC20(order.makerAsset.get()).safeBalanceOf(escrow) < makingAmount
+        ) {
             revert InsufficientEscrowBalance();
         }
     }
@@ -118,7 +133,10 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
     /**
      * @notice See {IEscrowFactory-createDstEscrow}.
      */
-    function createDstEscrow(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external payable {
+    function createDstEscrow(
+        IBaseEscrow.Immutables calldata dstImmutables,
+        uint256 srcCancellationTimestamp
+    ) external payable {
         address token = dstImmutables.token.get();
         uint256 nativeAmount = dstImmutables.safetyDeposit;
         if (token == address(0)) {
@@ -129,7 +147,9 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
         IBaseEscrow.Immutables memory immutables = dstImmutables;
         immutables.timelocks = immutables.timelocks.setDeployedAt(block.timestamp);
         // Check that the escrow cancellation will start not later than the cancellation time on the source chain.
-        if (immutables.timelocks.get(TimelocksLib.Stage.DstCancellation) > srcCancellationTimestamp) revert InvalidCreationTime();
+        if (immutables.timelocks.get(TimelocksLib.Stage.DstCancellation) > srcCancellationTimestamp) {
+            revert InvalidCreationTime();
+        }
 
         bytes32 salt = immutables.hashMem();
         address escrow = _deployEscrow(salt, msg.value, ESCROW_DST_IMPLEMENTATION);
@@ -165,7 +185,11 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
      * @param implementation Address of the implementation.
      * @return escrow The address of the deployed escrow contract.
      */
-    function _deployEscrow(bytes32 salt, uint256 value, address implementation) internal virtual returns (address escrow) {
+    function _deployEscrow(
+        bytes32 salt,
+        uint256 value,
+        address implementation
+    ) internal virtual returns (address escrow) {
         escrow = implementation.cloneDeterministic(salt, value);
     }
 
@@ -176,7 +200,8 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
         uint256 partsAmount,
         uint256 validatedIndex
     ) internal pure returns (bool) {
-        uint256 calculatedIndex = (orderMakingAmount - remainingMakingAmount + makingAmount - 1) * partsAmount / orderMakingAmount;
+        uint256 calculatedIndex =
+            (orderMakingAmount - remainingMakingAmount + makingAmount - 1) * partsAmount / orderMakingAmount;
 
         if (remainingMakingAmount == makingAmount) {
             // If the order is filled to completion, a secret with index i + 1 must be used
@@ -184,7 +209,8 @@ abstract contract BaseEscrowFactory is IEscrowFactory, ResolverValidationExtensi
             return (calculatedIndex + 2 == validatedIndex);
         } else if (orderMakingAmount != remainingMakingAmount) {
             // Calculate the previous fill index only if this is not the first fill.
-            uint256 prevCalculatedIndex = (orderMakingAmount - remainingMakingAmount - 1) * partsAmount / orderMakingAmount;
+            uint256 prevCalculatedIndex =
+                (orderMakingAmount - remainingMakingAmount - 1) * partsAmount / orderMakingAmount;
             if (calculatedIndex == prevCalculatedIndex) return false;
         }
 

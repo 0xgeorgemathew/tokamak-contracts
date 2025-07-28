@@ -24,7 +24,8 @@ import { TimelocksLib } from "../libraries/TimelocksLib.sol";
 
 /**
  * @title Sample implementation of a Resolver contract for cross-chain swap.
- * @dev It is important when deploying an escrow on the source chain to send the safety deposit and deploy the escrow in the same
+ * @dev It is important when deploying an escrow on the source chain to send the safety deposit and deploy the escrow in
+ * the same
  * transaction, since the address of the escrow depends on the block.timestamp.
  * You can find sample code for this in the {ResolverExample-deploySrc}.
  *
@@ -68,7 +69,10 @@ contract ResolverExample is IResolverExample, Ownable {
     /**
      * @notice See {IResolverExample-deployDst}.
      */
-    function deployDst(IBaseEscrow.Immutables calldata dstImmutables, uint256 srcCancellationTimestamp) external payable onlyOwner {
+    function deployDst(
+        IBaseEscrow.Immutables calldata dstImmutables,
+        uint256 srcCancellationTimestamp
+    ) external payable onlyOwner {
         _FACTORY.createDstEscrow{ value: msg.value }(dstImmutables, srcCancellationTimestamp);
     }
 

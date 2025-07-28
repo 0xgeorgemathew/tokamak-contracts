@@ -78,7 +78,12 @@ contract DeployEscrowSrc is Script {
                     "" // auctionPoints
                 )
             }),
-            CrossChainTestLib.EscrowDetails({ hashlock: hashlock, timelocks: timelocks, fakeOrder: false, allowMultipleFills: false }),
+            CrossChainTestLib.EscrowDetails({
+                hashlock: hashlock,
+                timelocks: timelocks,
+                fakeOrder: false,
+                allowMultipleFills: false
+            }),
             escrowFactory,
             limitOrderProtocol
         );

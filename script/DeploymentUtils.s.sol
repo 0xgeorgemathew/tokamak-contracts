@@ -1,3 +1,8 @@
+// solhint-disable no-console
+// solhint-disable no-empty-block
+// solhint-disable no-unused-variables
+// solhint-disable no-unused-function
+
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
@@ -6,7 +11,7 @@ import { console } from "forge-std/console.sol";
 import { stdJson } from "forge-std/StdJson.sol";
 
 contract DeploymentUtils is Script {
-    string private constant DEPLOYMENT_FILE = "deployments.json";
+    string internal constant DEPLOYMENT_FILE = "deployments.json";
 
     struct DeploymentAddresses {
         address factory;
@@ -191,7 +196,9 @@ contract DeploymentUtils is Script {
                             if (blockBytes[k] == " " || blockBytes[k] == "\n" || blockBytes[k] == "\r") continue;
                             if (blockBytes[k] == ":") {
                                 for (uint256 l = k + 1; l < blockBytes.length; l++) {
-                                    if (blockBytes[l] == " " || blockBytes[l] == "\n" || blockBytes[l] == "\r") continue;
+                                    if (blockBytes[l] == " " || blockBytes[l] == "\n" || blockBytes[l] == "\r") {
+                                        continue;
+                                    }
                                     if (blockBytes[l] == "{") isObject = true;
                                     break;
                                 }
@@ -255,7 +262,11 @@ contract DeploymentUtils is Script {
         );
     }
 
-    function _createNewJson(address deployer, uint32 rescueDelay, string memory firstNetworkEntry) private view returns (string memory) {
+    function _createNewJson(
+        address deployer,
+        uint32 rescueDelay,
+        string memory firstNetworkEntry
+    ) private view returns (string memory) {
         return string(
             abi.encodePacked(
                 "{\n",

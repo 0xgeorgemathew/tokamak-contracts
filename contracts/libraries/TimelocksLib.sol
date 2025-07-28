@@ -19,8 +19,10 @@ pragma solidity ^0.8.20;
  *     uint256 cancellation;
  * }
  *
- * withdrawal: Period when only the taker with a secret can withdraw tokens for taker (source chain) or maker (destination chain).
- * publicWithdrawal: Period when anyone with a secret can withdraw tokens for taker (source chain) or maker (destination chain).
+ * withdrawal: Period when only the taker with a secret can withdraw tokens for taker (source chain) or maker
+ * (destination chain).
+ * publicWithdrawal: Period when anyone with a secret can withdraw tokens for taker (source chain) or maker (destination
+ * chain).
  * cancellation: Period when escrow can only be cancelled by the taker.
  * publicCancellation: Period when escrow can be cancelled by anyone.
  *
@@ -52,7 +54,8 @@ library TimelocksLib {
      * @return The timelocks with the deployment timestamp set.
      */
     function setDeployedAt(Timelocks timelocks, uint256 value) internal pure returns (Timelocks) {
-        return Timelocks.wrap((Timelocks.unwrap(timelocks) & ~uint256(_DEPLOYED_AT_MASK)) | value << _DEPLOYED_AT_OFFSET);
+        return
+            Timelocks.wrap((Timelocks.unwrap(timelocks) & ~uint256(_DEPLOYED_AT_MASK)) | value << _DEPLOYED_AT_OFFSET);
     }
 
     /**

@@ -13,7 +13,8 @@ import { IBaseEscrow } from "./interfaces/IBaseEscrow.sol";
 
 /**
  * @title Base abstract Escrow contract for cross-chain atomic swap.
- * @dev {IBaseEscrow-withdraw}, {IBaseEscrow-cancel} and _validateImmutables functions must be implemented in the derived contracts.
+ * @dev {IBaseEscrow-withdraw}, {IBaseEscrow-cancel} and _validateImmutables functions must be implemented in the
+ * derived contracts.
  * @custom:security-contact security@1inch.io
  */
 abstract contract BaseEscrow is IBaseEscrow {
@@ -80,7 +81,12 @@ abstract contract BaseEscrow is IBaseEscrow {
         address token,
         uint256 amount,
         Immutables calldata immutables
-    ) external onlyTaker(immutables) onlyValidImmutables(immutables) onlyAfter(immutables.timelocks.rescueStart(RESCUE_DELAY)) {
+    )
+        external
+        onlyTaker(immutables)
+        onlyValidImmutables(immutables)
+        onlyAfter(immutables.timelocks.rescueStart(RESCUE_DELAY))
+    {
         _uniTransfer(token, msg.sender, amount);
         emit FundsRescued(token, amount);
     }

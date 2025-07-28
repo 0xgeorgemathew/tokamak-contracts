@@ -12,10 +12,14 @@ library TimelocksSettersLib {
      * @notice Initializes the timelocks.
      * @param srcWithdrawal Seconds between `deployedAt` and the start of the withdrawal period on the source chain.
      * @param srcCancellation Seconds between `deployedAt` and the start of the cancellation period on the source chain.
-     * @param srcPublicCancellation Seconds between `deployedAt` and the start of the public cancellation period on the source chain.
-     * @param dstWithdrawal Seconds between `deployedAt` and the start of the withdrawal period on the destination chain.
-     * @param dstPublicWithdrawal Seconds between `deployedAt` and the start of the public withdrawal period on the destination chain.
-     * @param dstCancellation Seconds between `deployedAt` and the start of the cancellation period on the destination chain.
+     * @param srcPublicCancellation Seconds between `deployedAt` and the start of the public cancellation period on the
+     * source chain.
+     * @param dstWithdrawal Seconds between `deployedAt` and the start of the withdrawal period on the destination
+     * chain.
+     * @param dstPublicWithdrawal Seconds between `deployedAt` and the start of the public withdrawal period on the
+     * destination chain.
+     * @param dstCancellation Seconds between `deployedAt` and the start of the cancellation period on the destination
+     * chain.
      * @param deployedAt Deployment timestamp.
      * @return The initialized Timelocks.
      */

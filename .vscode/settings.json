@@ -1,7 +1,8 @@
 {
+  // --- CORRECTED AND CLEANED SETTINGS ---
+
   // Solidity Configuration
-  "solidity.compileUsingRemoteVersion": "latest",
-  "solidity.formatter": "prettier",
+  "solidity.compileUsingRemoteVersion": "v0.8.23+commit.f704f362",
   "solidity.linter": "solhint",
   "solidity.enabledAsYouTypeCompilationErrorCheck": true,
   "solidity.validationDelay": 1500,
@@ -29,20 +30,24 @@
     "**/broadcast": true
   },
 
-  // Editor settings for Solidity
+  // Editor settings
+  "editor.formatOnType": false,
   "editor.tabSize": 4,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "always"
-  },
 
   // File associations
   "files.associations": {
     "*.sol": "solidity",
     "foundry.toml": "toml",
     "*.toml": "toml"
+  },
+
+  // Language-specific settings for Solidity
+  "[solidity]": {
+    "editor.defaultFormatter": "JuanBlanco.solidity",
+    "editor.formatOnSave": true
   },
 
   // Terminal settings for Foundry
@@ -52,6 +57,9 @@
   "terminal.integrated.env.linux": {
     "PATH": "${env:PATH}:${workspaceFolder}/bin"
   },
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.cursorBlinking": true,
 
   // IntelliSense optimizations
   "solidity.enableLocalNodeCompiler": false,
@@ -70,13 +78,6 @@
   "errorLens.enabledDiagnosticLevels": ["error", "warning"],
   "errorLens.excludeBySource": ["cSpell", "copilot"],
 
-  // Prettier configuration for Solidity
-  "prettier.documentSelectors": ["**/*.sol"],
-  "prettier.plugins": ["prettier-plugin-solidity"],
-  "[solidity]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-
   // AGGRESSIVE COPILOT DISABLE (Keep only commit messages)
   "github.copilot.enable": {
     "*": false,
@@ -84,25 +85,17 @@
     "markdown": false,
     "scminput": true
   },
-
-  // Completely disable all Copilot editor features
   "github.copilot.editor.enableAutoCompletions": false,
   "github.copilot.editor.enableCodeActions": false,
   "github.copilot.inlineSuggest.enable": false,
   "github.copilot.nextEditSuggestions.enabled": false,
   "github.copilot.renameSuggestions.triggerAutomatically": false,
-
-  // Disable all Copilot chat and UI elements
   "github.copilot.chat.enabled": false,
   "github.copilot.labs.enabled": false,
   "chat.commandCenter.enabled": false,
   "chat.agent.enabled": false,
   "workbench.panel.chat.enabled": false,
-
-  // Hide Copilot from command palette and menus
   "github.copilot.advanced": {},
-
-  // ONLY preserve commit message generation
   "github.copilot.chat.commitMessageGeneration.instructions": [
     { "text": "Use conventional commit format: type(scope): description" },
     { "text": "Use imperative mood: 'Add feature' not 'Added feature'" },
@@ -118,9 +111,10 @@
     { "text": "For Solidity: specify contract names in scope when relevant" }
   ],
 
-  // Optimize editor for Windsurf (disable competing suggestions)
-  "editor.acceptSuggestionOnCommitCharacter": false,
-  "editor.acceptSuggestionOnEnter": "off",
+  // --- RESTORED DEFAULT SUGGESTION BEHAVIOR ---
+  // The settings that were here were breaking mouse clicks on suggestions.
+  // We will let the editor use its default, reliable behavior.
+  // You can still use the Tab key for precise control.
   "editor.quickSuggestions": {
     "other": true,
     "comments": false,
@@ -130,8 +124,6 @@
   "editor.wordBasedSuggestions": "off",
   "editor.parameterHints.enabled": true,
   "editor.quickSuggestionsDelay": 10,
-
-  // Enhanced Windsurf optimizations
   "editor.suggest.showSnippets": true,
   "editor.suggest.showWords": false,
   "editor.suggest.localityBonus": true,
@@ -139,7 +131,7 @@
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.suggest.filterGraceful": true,
 
-  // Ensure clean IntelliSense for Windsurf
+  // Ensure clean IntelliSense for other languages
   "typescript.suggest.autoImports": true,
   "typescript.suggest.enabled": true,
   "typescript.preferences.includePackageJsonAutoImports": "auto",
@@ -153,10 +145,5 @@
   // Workspace-specific improvements
   "workbench.editor.enablePreview": false,
   "workbench.editor.enablePreviewFromQuickOpen": false,
-  "breadcrumbs.enabled": true,
-
-  // Enhanced terminal for Foundry
-  "terminal.integrated.scrollback": 10000,
-  "terminal.integrated.fontSize": 13,
-  "terminal.integrated.cursorBlinking": true
+  "breadcrumbs.enabled": true
 }

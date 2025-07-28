@@ -1,3 +1,7 @@
+// solhint-disable no-console
+// solhint-disable quotes
+// solhint-disable-next-line quotes
+
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.23;
@@ -60,39 +64,37 @@ contract SetupCrossChainSwap is Script {
     }
 
     // Configuration
-    uint32 constant TESTNET_TIMELOCK = 60; // 60 seconds for testing
+    uint32 constant _TESTNET_TIMELOCK = 60; // 60 seconds for testing
     address public deployer;
 
     function setUp() public {
         deployer = vm.envAddress("DEPLOYER_ADDRESS");
         console.log("=== CROSS-CHAIN SWAP SETUP ===");
         console.log("Deployer:", deployer);
-        console.log("Timelock Duration:", TESTNET_TIMELOCK);
-        console.log("Duration unit: seconds");
         console.log("");
     }
 
     function run() external {
         // Load network configurations
-        (DeploymentData memory sepoliaData, DeploymentData memory monadData) = loadDeploymentConfig();
+        (DeploymentData memory sepoliaData, DeploymentData memory monadData) = _loadDeploymentConfig();
 
         // Generate swap parameters
-        SwapState memory state = generateSwapState(sepoliaData, monadData);
-        logSwapState(state);
+        SwapState memory state = _generateSwapState(sepoliaData, monadData);
+        _logSwapState(state);
 
         // Phase 1: Setup Sepolia destination escrow
         console.log("=== PHASE 1: Sepolia Destination Escrow ===");
         vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL"));
-        setupSepoliaEscrow(state);
+        _setupSepoliaEscrow(state);
 
         // Phase 2: Setup Monad source escrow
         console.log("=== PHASE 2: Monad Source Escrow ===");
         vm.createSelectFork(vm.envString("MONAD_RPC_URL"));
-        setupMonadEscrow(state);
+        _setupMonadEscrow(state);
 
         // Save state for subsequent scripts
         console.log("=== SAVING SWAP STATE ===");
-        saveSwapState(state);
+        _saveSwapState(state);
 
         console.log("=== SETUP COMPLETED ===");
         console.log("Next steps:");
@@ -100,10 +102,14 @@ contract SetupCrossChainSwap is Script {
         console.log("2. Run: forge script script/2_CheckSwapStatus.s.sol");
         console.log("3. Run: forge script script/3_ExecuteWithdrawals.s.sol --broadcast");
         console.log("");
-        printSummary(state);
+        _printSummary(state);
     }
 
-    function loadDeploymentConfig() internal view returns (DeploymentData memory sepoliaData, DeploymentData memory monadData) {
+    function _loadDeploymentConfig()
+        internal
+        view
+        returns (DeploymentData memory sepoliaData, DeploymentData memory monadData)
+    {
         string memory json;
 
         try vm.readFile("deployments.json") returns (string memory fileContent) {
@@ -140,7 +146,7 @@ contract SetupCrossChainSwap is Script {
         monadData.chainId = vm.parseJsonUint(json, ".contracts.monad.chainId");
     }
 
-    function generateSwapState(
+    function _generateSwapState(
         DeploymentData memory sepoliaData,
         DeploymentData memory monadData
     ) internal view returns (SwapState memory) {
@@ -150,68 +156,20 @@ contract SetupCrossChainSwap is Script {
         bytes32 hashlock = keccak256(abi.encode(secret));
         bytes32 orderHash = keccak256(abi.encodePacked(secret, currentTime, "order_v1"));
 
-        // Create timelocks for escrow address computation
-        Timelocks timelocks = TimelocksSettersLib.init(
-            TESTNET_TIMELOCK,     // srcWithdrawal: 60s
-            TESTNET_TIMELOCK * 2, // srcPublicWithdrawal: 120s
-            TESTNET_TIMELOCK * 3, // srcCancellation: 180s
-            TESTNET_TIMELOCK * 4, // srcPublicCancellation: 240s
-            TESTNET_TIMELOCK,     // dstWithdrawal: 60s
-            TESTNET_TIMELOCK * 2, // dstPublicWithdrawal: 120s
-            TESTNET_TIMELOCK * 2, // dstCancellation: 120s
-            0 // deployedAt = 0
-        );
-
-        // Compute escrow addresses
+        // Swap amounts
         uint256 srcAmount = 1 ether;
         uint256 dstAmount = 0.5 ether;
         uint256 safetyDeposit = 0.01 ether;
 
-        IBaseEscrow.Immutables memory dstImmutables = IBaseEscrow.Immutables({
-            orderHash: orderHash,
-            hashlock: hashlock,
-            maker: Address.wrap(uint160(deployer)),
-            taker: Address.wrap(uint160(deployer)),
-            token: Address.wrap(uint160(sepoliaData.swapToken)),
-            amount: dstAmount,
-            safetyDeposit: safetyDeposit,
-            timelocks: timelocks
-        });
+        console.log("Generated swap parameters:");
+        console.log("Secret:", vm.toString(secret));
+        console.log("Hashlock:", vm.toString(hashlock));
+        console.log("Order Hash:", vm.toString(orderHash));
+        console.log("Source Amount:", srcAmount);
+        console.log("Destination Amount:", dstAmount);
+        console.log("");
 
-        IBaseEscrow.Immutables memory srcImmutables = IBaseEscrow.Immutables({
-            orderHash: orderHash,
-            hashlock: hashlock,
-            maker: Address.wrap(uint160(deployer)),
-            taker: Address.wrap(uint160(deployer)),
-            token: Address.wrap(uint160(monadData.swapToken)),
-            amount: srcAmount,
-            safetyDeposit: safetyDeposit,
-            timelocks: timelocks
-        });
-
-        console.log("Computing escrow addresses...");
-        console.log("Sepolia factory:", sepoliaData.escrowFactory);
-        console.log("Monad factory:", monadData.escrowFactory);
-        
-        address dstEscrow;
-        address srcEscrow;
-        
-        try IEscrowFactory(sepoliaData.escrowFactory).addressOfEscrowDst(dstImmutables) returns (address addr) {
-            dstEscrow = addr;
-            console.log("Destination escrow computed:", dstEscrow);
-        } catch {
-            console.log("ERROR: Failed to compute destination escrow address");
-            revert("Destination escrow computation failed");
-        }
-        
-        try IEscrowFactory(monadData.escrowFactory).addressOfEscrowSrc(srcImmutables) returns (address addr) {
-            srcEscrow = addr;
-            console.log("Source escrow computed:", srcEscrow);
-        } catch {
-            console.log("ERROR: Failed to compute source escrow address");
-            revert("Source escrow computation failed");
-        }
-
+        // Initialize state with placeholder addresses - will be computed in fork contexts
         return SwapState({
             secret: secret,
             hashlock: hashlock,
@@ -220,39 +178,32 @@ contract SetupCrossChainSwap is Script {
             srcAmount: srcAmount,
             dstAmount: dstAmount,
             safetyDeposit: safetyDeposit,
-            dstEscrow: dstEscrow,
-            srcEscrow: srcEscrow,
+            dstEscrow: address(0), // Will be computed in Sepolia fork
+            srcEscrow: address(0), // Will be computed in Monad fork
             sepoliaFactory: sepoliaData.escrowFactory,
             sepoliaToken: sepoliaData.swapToken,
             monadFactory: monadData.escrowFactory,
             monadToken: monadData.swapToken,
-            timelockDuration: TESTNET_TIMELOCK
+            timelockDuration: _TESTNET_TIMELOCK
         });
     }
 
-    function setupSepoliaEscrow(SwapState memory state) internal {
-        vm.startBroadcast(deployer);
-
-        // Setup tokens
-        console.log("Setting up Sepolia tokens...");
-        TokenMock sepoliaToken = TokenMock(state.sepoliaToken);
-        sepoliaToken.mint(deployer, 10 ether);
-        sepoliaToken.approve(state.sepoliaFactory, state.dstAmount);
-        console.log(unicode"  ✓ Minted 10 tokens");
-        console.log(unicode"  ✓ Approved", state.dstAmount, "tokens");
-
-        // Create destination escrow
-        console.log("Creating destination escrow...");
-
+    function _setupSepoliaEscrow(
+        SwapState memory state
+    ) internal {
+        // Compute destination escrow address in Sepolia fork context
+        console.log("Computing destination escrow address on Sepolia...");
+        console.log("Sepolia factory:", state.sepoliaFactory);
+        
         Timelocks timelocks = TimelocksSettersLib.init(
-            state.timelockDuration,     // srcWithdrawal
+            state.timelockDuration, // srcWithdrawal
             state.timelockDuration * 2, // srcPublicWithdrawal
             state.timelockDuration * 3, // srcCancellation
             state.timelockDuration * 4, // srcPublicCancellation
-            state.timelockDuration,     // dstWithdrawal
+            state.timelockDuration, // dstWithdrawal
             state.timelockDuration * 2, // dstPublicWithdrawal
             state.timelockDuration * 2, // dstCancellation
-            0 // deployedAt
+            uint32(state.deploymentTime) // deployedAt = deployment timestamp
         );
 
         IBaseEscrow.Immutables memory dstImmutables = IBaseEscrow.Immutables({
@@ -266,11 +217,30 @@ contract SetupCrossChainSwap is Script {
             timelocks: timelocks
         });
 
+        try IEscrowFactory(state.sepoliaFactory).addressOfEscrowDst(dstImmutables) returns (address addr) {
+            state.dstEscrow = addr;
+            console.log(unicode"  ✓ Destination escrow computed:", state.dstEscrow);
+        } catch {
+            console.log("ERROR: Failed to compute destination escrow address on Sepolia");
+            revert("Destination escrow computation failed on Sepolia testnet");
+        }
+
+        vm.startBroadcast(deployer);
+
+        // Setup tokens
+        console.log("Setting up Sepolia tokens...");
+        TokenMock sepoliaToken = TokenMock(state.sepoliaToken);
+        sepoliaToken.mint(deployer, 10 ether);
+        sepoliaToken.approve(state.sepoliaFactory, state.dstAmount);
+        console.log(unicode"  ✓ Minted 10 tokens");
+        console.log(unicode"  ✓ Approved", state.dstAmount, "tokens");
+
+        // Create destination escrow
+        console.log("Creating destination escrow...");
         uint256 srcCancellationTimestamp = block.timestamp + state.timelockDuration * 3;
 
-        IEscrowFactory(state.sepoliaFactory).createDstEscrow{value: state.safetyDeposit}(
-            dstImmutables,
-            srcCancellationTimestamp
+        IEscrowFactory(state.sepoliaFactory).createDstEscrow{ value: state.safetyDeposit }(
+            dstImmutables, srcCancellationTimestamp
         );
 
         // Update deployment time to actual block timestamp
@@ -285,7 +255,43 @@ contract SetupCrossChainSwap is Script {
         console.log("");
     }
 
-    function setupMonadEscrow(SwapState memory state) internal {
+    function _setupMonadEscrow(
+        SwapState memory state
+    ) internal {
+        // Compute source escrow address in Monad fork context
+        console.log("Computing source escrow address on Monad...");
+        console.log("Monad factory:", state.monadFactory);
+        
+        Timelocks timelocks = TimelocksSettersLib.init(
+            state.timelockDuration, // srcWithdrawal
+            state.timelockDuration * 2, // srcPublicWithdrawal
+            state.timelockDuration * 3, // srcCancellation
+            state.timelockDuration * 4, // srcPublicCancellation
+            state.timelockDuration, // dstWithdrawal
+            state.timelockDuration * 2, // dstPublicWithdrawal
+            state.timelockDuration * 2, // dstCancellation
+            uint32(state.deploymentTime) // deployedAt = deployment timestamp
+        );
+
+        IBaseEscrow.Immutables memory srcImmutables = IBaseEscrow.Immutables({
+            orderHash: state.orderHash,
+            hashlock: state.hashlock,
+            maker: Address.wrap(uint160(deployer)),
+            taker: Address.wrap(uint160(deployer)),
+            token: Address.wrap(uint160(state.monadToken)),
+            amount: state.srcAmount,
+            safetyDeposit: state.safetyDeposit,
+            timelocks: timelocks
+        });
+
+        try IEscrowFactory(state.monadFactory).addressOfEscrowSrc(srcImmutables) returns (address addr) {
+            state.srcEscrow = addr;
+            console.log(unicode"  ✓ Source escrow computed:", state.srcEscrow);
+        } catch {
+            console.log("ERROR: Failed to compute source escrow address on Monad");
+            revert("Source escrow computation failed on Monad testnet");
+        }
+
         vm.startBroadcast(deployer);
 
         // Setup tokens
@@ -297,8 +303,8 @@ contract SetupCrossChainSwap is Script {
         // Fund source escrow
         console.log("Funding source escrow...");
         monadToken.transfer(state.srcEscrow, state.srcAmount);
-        (bool success,) = state.srcEscrow.call{value: state.safetyDeposit}("");
-        require(success, "Failed to send safety deposit");
+        (bool success,) = state.srcEscrow.call{ value: state.safetyDeposit }("");
+        if (!success) revert("Failed to send safety deposit");
 
         console.log(unicode"  ✓ Transferred", state.srcAmount, "tokens to:", state.srcEscrow);
         console.log(unicode"  ✓ Safety deposit sent:", state.safetyDeposit);
@@ -314,44 +320,78 @@ contract SetupCrossChainSwap is Script {
         console.log("");
     }
 
-    function saveSwapState(SwapState memory state) internal {
+    function _saveSwapState(
+        SwapState memory state
+    ) internal {
         string memory json = string.concat(
-            '{\n',
-            '  "secret": "', vm.toString(state.secret), '",\n',
-            '  "hashlock": "', vm.toString(state.hashlock), '",\n',
-            '  "orderHash": "', vm.toString(state.orderHash), '",\n',
-            '  "deploymentTime": ', vm.toString(state.deploymentTime), ',\n',
-            '  "srcAmount": "', vm.toString(state.srcAmount), '",\n',
-            '  "dstAmount": "', vm.toString(state.dstAmount), '",\n',
-            '  "safetyDeposit": "', vm.toString(state.safetyDeposit), '",\n',
-            '  "dstEscrow": "', vm.toString(state.dstEscrow), '",\n',
-            '  "srcEscrow": "', vm.toString(state.srcEscrow), '",\n',
-            '  "sepoliaFactory": "', vm.toString(state.sepoliaFactory), '",\n',
-            '  "sepoliaToken": "', vm.toString(state.sepoliaToken), '",\n',
-            '  "monadFactory": "', vm.toString(state.monadFactory), '",\n',
-            '  "monadToken": "', vm.toString(state.monadToken), '",\n',
-            '  "timelockDuration": ', vm.toString(state.timelockDuration), '\n',
-            '}'
+            "{\n",
+            '  "secret": "',
+            vm.toString(state.secret),
+            '",\n',
+            '  "hashlock": "',
+            vm.toString(state.hashlock),
+            '",\n',
+            '  "orderHash": "',
+            vm.toString(state.orderHash),
+            '",\n',
+            '  "deploymentTime": ',
+            vm.toString(state.deploymentTime),
+            ",\n",
+            '  "srcAmount": "',
+            vm.toString(state.srcAmount),
+            '",\n',
+            '  "dstAmount": "',
+            vm.toString(state.dstAmount),
+            '",\n',
+            '  "safetyDeposit": "',
+            vm.toString(state.safetyDeposit),
+            '",\n',
+            '  "dstEscrow": "',
+            vm.toString(state.dstEscrow),
+            '",\n',
+            '  "srcEscrow": "',
+            vm.toString(state.srcEscrow),
+            '",\n',
+            '  "sepoliaFactory": "',
+            vm.toString(state.sepoliaFactory),
+            '",\n',
+            '  "sepoliaToken": "',
+            vm.toString(state.sepoliaToken),
+            '",\n',
+            '  "monadFactory": "',
+            vm.toString(state.monadFactory),
+            '",\n',
+            '  "monadToken": "',
+            vm.toString(state.monadToken),
+            '",\n',
+            '  "timelockDuration": ',
+            vm.toString(state.timelockDuration),
+            "\n",
+            "}"
         );
 
         vm.writeFile("swap_state.json", json);
         console.log(unicode"✓ Swap state saved to swap_state.json");
     }
 
-    function logSwapState(SwapState memory state) internal view {
-        console.log("=== Generated Swap Parameters ===");
+    function _logSwapState(
+        SwapState memory state
+    ) internal view {
+        console.log("=== Initial Swap Parameters ===");
         console.log("Secret:", vm.toString(state.secret));
         console.log("Hashlock:", vm.toString(state.hashlock));
         console.log("Order Hash:", vm.toString(state.orderHash));
         console.log("Source Amount:", state.srcAmount);
         console.log("Destination Amount:", state.dstAmount);
         console.log("Safety Deposit:", state.safetyDeposit);
-        console.log("Destination Escrow:", state.dstEscrow);
-        console.log("Source Escrow:", state.srcEscrow);
+        console.log("Timelock Duration:", state.timelockDuration, "seconds");
+        console.log("Note: Escrow addresses will be computed in their respective fork contexts");
         console.log("");
     }
 
-    function printSummary(SwapState memory state) internal view {
+    function _printSummary(
+        SwapState memory state
+    ) internal view {
         console.log(unicode"=== SETUP SUMMARY ===");
         console.log(unicode"✅ Sepolia destination escrow funded:", state.dstEscrow);
         console.log(unicode"✅ Monad source escrow funded:", state.srcEscrow);
