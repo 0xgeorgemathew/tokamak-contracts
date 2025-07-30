@@ -54,4 +54,22 @@ interface IResolverExample {
      * @param arguments The arguments to pass to the contract calls.
      */
     function arbitraryCalls(address[] calldata targets, bytes[] calldata arguments) external;
+
+    /**
+     * @notice Returns the deterministic address of the source escrow based on the immutables.
+     * @param immutables The immutable arguments used to compute the escrow address.
+     * @return The computed address of the source escrow.
+     */
+    function addressOfEscrowSrc(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address);
+
+    /**
+     * @notice Returns the deterministic address of the destination escrow based on the immutables.
+     * @param immutables The immutable arguments used to compute the escrow address.
+     * @return The computed address of the destination escrow.
+     */
+    function addressOfEscrowDst(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address);
 }

@@ -119,8 +119,8 @@ PUBLIC_CANCELLATION_TIME=$((CURRENT_TIME + 1200)) # 20 minutes
 DST_TIMELOCKS="0x$(printf '%08x%08x%08x%08x%016x' $WITHDRAWAL_TIME $PUBLIC_WITHDRAWAL_TIME $CANCELLATION_TIME $PUBLIC_CANCELLATION_TIME $CURRENT_TIME)"
 
 # Build destination immutables tuple
-# (orderHash, amount, maker, taker, token, hashlock, safetyDeposit, timelocks)
-DST_IMMUTABLES="($ORDER_HASH,$SWAP_AMOUNT_WEI,$MAKER_ADDRESS,$RESOLVER_ADDRESS,$DST_TOKEN_ADDRESS,$SECRET_HASH,$SAFETY_DEPOSIT,$DST_TIMELOCKS)"
+# Correct order: (orderHash, hashlock, maker, taker, token, amount, safetyDeposit, timelocks)
+DST_IMMUTABLES="($ORDER_HASH,$SECRET_HASH,$MAKER_ADDRESS,$RESOLVER_ADDRESS,$DST_TOKEN_ADDRESS,$SWAP_AMOUNT_WEI,$SAFETY_DEPOSIT,$DST_TIMELOCKS)"
 
 echo -e "${GREEN}✅ Destination immutables prepared${NC}"
 
@@ -133,14 +133,14 @@ echo -e "${BLUE}⏰ Source cancellation timestamp: $SRC_CANCELLATION_TIMESTAMP${
 echo -e "${BLUE}🧮 Computing destination escrow address...${NC}"
 
 # This calls the factory's addressOfEscrowDst function through the resolver
-ESCROW_DST_ADDRESS=$(cast call "$RESOLVER_ADDRESS" "addressOfEscrowDst((bytes32,uint256,address,address,address,bytes32,uint256,uint256))" "$DST_IMMUTABLES" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
+ESCROW_DST_ADDRESS=$(cast call "$RESOLVER_ADDRESS" "addressOfEscrowDst((bytes32,bytes32,uint256,uint256,uint256,uint256,uint256,uint256))" "$DST_IMMUTABLES" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
 
 if [ "$ESCROW_DST_ADDRESS" = "0x0000000000000000000000000000000000000000" ]; then
     # Try to compute via factory directly
     FACTORY_ADDRESS=$(jq -r ".contracts.$NETWORK.escrowFactory" "$DEPLOYMENTS_PATH")
     if [ "$FACTORY_ADDRESS" != "null" ] && [ -n "$FACTORY_ADDRESS" ]; then
         echo -e "${YELLOW}⚠️  Trying factory directly...${NC}"
-        ESCROW_DST_ADDRESS=$(cast call "$FACTORY_ADDRESS" "addressOfEscrowDst((bytes32,uint256,address,address,address,bytes32,uint256,uint256))" "$DST_IMMUTABLES" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
+        ESCROW_DST_ADDRESS=$(cast call "$FACTORY_ADDRESS" "addressOfEscrowDst((bytes32,bytes32,uint256,uint256,uint256,uint256,uint256,uint256))" "$DST_IMMUTABLES" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
     fi
 fi
 
@@ -188,7 +188,7 @@ echo -e "${YELLOW}📡 Calling ResolverExample.deployDst()...${NC}"
 
 # Call deployDst function with safety deposit
 cast send "$RESOLVER_ADDRESS" \
-    "deployDst((bytes32,uint256,address,address,address,bytes32,uint256,uint256),uint256)" \
+    "deployDst((bytes32,bytes32,uint256,uint256,uint256,uint256,uint256,uint256),uint256)" \
     "$DST_IMMUTABLES" \
     "$SRC_CANCELLATION_TIMESTAMP" \
     --value "$SAFETY_DEPOSIT" \

@@ -2,6 +2,15 @@
 
 # Resolver Deploy Source: Direct ResolverExample.deploySrc() call
 # This script demonstrates the correct architecture using ResolverExample contract directly
+#
+# CRITICAL FIXES APPLIED:
+# 1. Address computation accounts for setDeployedAt() timestamp modification
+# 2. Proper ExtraDataArgs encoding (160 bytes) for Factory._postInteraction 
+# 3. Address types converted to uint256 with Address.wrap() format
+# 4. Timelocks properly packed according to TimelocksLib (7 stages * 32 bits)
+# 5. Enhanced validation and error handling with transaction confirmation
+# 6. Increased gas limit to 3M for complex proxy deployments
+# 7. CRITICAL: Args parameter excludes target address (ResolverExample adds it via abi.encodePacked)
 
 set -e  # Exit on any error
 
@@ -99,22 +108,45 @@ echo "Amount: $SWAP_AMOUNT_WEI wei"
 echo "Maker: $MAKER_ADDRESS"
 echo ""
 
-# Build immutables struct
-# Based on IBaseEscrow.sol: (orderHash, amount, maker, taker, token, hashlock, safetyDeposit, timelocks)
+# Build immutables struct with proper Address type handling
 echo -e "${YELLOW}🏗️  Building immutables struct...${NC}"
 
-# Get current timestamp for timelocks
+# Get current timestamp - this will be used by setDeployedAt() in the contract
 CURRENT_TIME=$(date +%s)
-WITHDRAWAL_TIME=$((CURRENT_TIME + 300))       # 5 minutes
-PUBLIC_WITHDRAWAL_TIME=$((CURRENT_TIME + 600)) # 10 minutes  
-CANCELLATION_TIME=$((CURRENT_TIME + 900))     # 15 minutes
-PUBLIC_CANCELLATION_TIME=$((CURRENT_TIME + 1200)) # 20 minutes
 
-# Pack timelocks (this is a simplification - actual implementation may vary)
-TIMELOCKS="0x$(printf '%08x%08x%08x%08x%016x' $WITHDRAWAL_TIME $PUBLIC_WITHDRAWAL_TIME $CANCELLATION_TIME $PUBLIC_CANCELLATION_TIME $CURRENT_TIME)"
+# Define timelock offsets (in seconds from deployment)
+WITHDRAWAL_OFFSET=300        # 5 minutes
+PUBLIC_WITHDRAWAL_OFFSET=600 # 10 minutes  
+CANCELLATION_OFFSET=900      # 15 minutes
+PUBLIC_CANCELLATION_OFFSET=1200 # 20 minutes
 
-# Build immutables tuple
-IMMUTABLES="($ORDER_HASH,$SWAP_AMOUNT_WEI,$MAKER_ADDRESS,$RESOLVER_ADDRESS,$ORDER_MAKER_ASSET,$SECRET_HASH,$SAFETY_DEPOSIT,$TIMELOCKS)"
+# Pack timelocks correctly according to TimelocksLib
+# Stages (7 stages * 32 bits each = 224 bits in lower portion)
+# Stage order: SrcWithdrawal=0, SrcPublicWithdrawal=1, SrcCancellation=2, SrcPublicCancellation=3, 
+# DstWithdrawal=4, DstPublicWithdrawal=5, DstCancellation=6
+# Upper 32 bits reserved for deployment timestamp (set by setDeployedAt)
+
+# Pack all 7 stages into lower 224 bits (each stage gets 32 bits)
+TIMELOCKS_PACKED_STAGES=$(printf '%08x%08x%08x%08x%08x%08x%08x' \
+    $WITHDRAWAL_OFFSET \
+    $PUBLIC_WITHDRAWAL_OFFSET \
+    $CANCELLATION_OFFSET \
+    $PUBLIC_CANCELLATION_OFFSET \
+    $WITHDRAWAL_OFFSET \
+    $PUBLIC_WITHDRAWAL_OFFSET \
+    $CANCELLATION_OFFSET)
+
+# Convert to proper 256-bit value with zero in upper 32 bits (deployment timestamp slot)
+TIMELOCKS_STAGES="0x00000000${TIMELOCKS_PACKED_STAGES}"
+
+# Build immutables tuple with Address.wrap() conversions
+# Note: Address is uint256 type, so we need to convert addresses to uint256
+MAKER_UINT256="0x$(printf '%064x' $((16#${MAKER_ADDRESS:2})))"
+RESOLVER_UINT256="0x$(printf '%064x' $((16#${RESOLVER_ADDRESS:2})))"
+TOKEN_UINT256="0x$(printf '%064x' $((16#${ORDER_MAKER_ASSET:2})))"
+
+# Build immutables tuple - order: (orderHash, hashlock, maker, taker, token, amount, safetyDeposit, timelocks)
+IMMUTABLES="($ORDER_HASH,$SECRET_HASH,$MAKER_UINT256,$RESOLVER_UINT256,$TOKEN_UINT256,$SWAP_AMOUNT_WEI,$SAFETY_DEPOSIT,$TIMELOCKS_STAGES)"
 
 echo -e "${GREEN}✅ Immutables prepared${NC}"
 
@@ -123,35 +155,119 @@ ORDER="($ORDER_SALT,$ORDER_MAKER,$ORDER_RECEIVER,$ORDER_MAKER_ASSET,$ORDER_TAKER
 
 echo -e "${GREEN}✅ Order tuple prepared${NC}"
 
-# Build taker traits (simplified)
+# Build taker traits with _ARGS_HAS_TARGET flag
 TAKER_TRAITS="0x8000000000000000000000000000000000000000000000000000000000000000" # _ARGS_HAS_TARGET flag
 
-# Build args (target address + extra data)
-ESCROW_SRC_ADDRESS=$(cast call $RESOLVER_ADDRESS "addressOfEscrowSrc((bytes32,uint256,address,address,address,bytes32,uint256,uint256))" "$IMMUTABLES" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
+# Build ExtraDataArgs struct for the Factory's _postInteraction method
+# This is critical - the Factory needs this data to create the escrow
+echo -e "${YELLOW}🏗️  Building ExtraDataArgs...${NC}"
+
+# Get destination network info for ExtraDataArgs
+DST_CHAIN_ID=$(jq -r '.networks.destination.chainId' "$SECRETS_PATH")
+DST_TOKEN=$(jq -r '.destinationToken' "$SECRETS_PATH")
+DST_TOKEN_UINT256="0x$(printf '%064x' $((16#${DST_TOKEN:2})))"
+
+# Pack deposits: srcDeposit (high 128 bits) | dstDeposit (low 128 bits)
+# For now, using same safety deposit for both sides
+PACKED_DEPOSITS="0x$(printf '%032x%032x' $((SAFETY_DEPOSIT)) $((SAFETY_DEPOSIT)))"
+
+# Build ExtraDataArgs: (hashlockInfo, dstChainId, dstToken, deposits, timelocks)
+EXTRA_DATA_ARGS="$SECRET_HASH,$DST_CHAIN_ID,$DST_TOKEN_UINT256,$PACKED_DEPOSITS,$TIMELOCKS_STAGES"
+
+# Now we need to predict the escrow address that will be created
+# The Factory will call setDeployedAt(block.timestamp) which modifies timelocks
+echo -e "${YELLOW}🔮 Computing escrow address with deployment timestamp...${NC}"
+
+# Create immutables with setDeployedAt applied (approximating with current time + 30s for tx time)
+DEPLOYMENT_TIME=$((CURRENT_TIME + 30))
+
+# Apply setDeployedAt transformation: put deployment time in upper 32 bits
+# Format: deploymentTime(32 bits) + stages(224 bits) = 256 bits total
+TIMELOCKS_WITH_DEPLOYMENT="0x$(printf '%08x%s' $DEPLOYMENT_TIME ${TIMELOCKS_PACKED_STAGES})"
+IMMUTABLES_FOR_ADDRESS="($ORDER_HASH,$SECRET_HASH,$MAKER_UINT256,$RESOLVER_UINT256,$TOKEN_UINT256,$SWAP_AMOUNT_WEI,$SAFETY_DEPOSIT,$TIMELOCKS_WITH_DEPLOYMENT)"
+
+ESCROW_SRC_ADDRESS=$(cast call $RESOLVER_ADDRESS "addressOfEscrowSrc((bytes32,bytes32,uint256,uint256,uint256,uint256,uint256,uint256))" "$IMMUTABLES_FOR_ADDRESS" --rpc-url "$RPC_URL" 2>/dev/null || echo "0x0000000000000000000000000000000000000000")
 
 if [ "$ESCROW_SRC_ADDRESS" = "0x0000000000000000000000000000000000000000" ]; then
     echo -e "${RED}❌ Could not compute escrow source address${NC}"
     exit 1
 fi
 
-echo -e "${BLUE}📍 Computed Escrow Source: $ESCROW_SRC_ADDRESS${NC}"
+echo -e "${BLUE}📍 Predicted Escrow Source: $ESCROW_SRC_ADDRESS${NC}"
 
-# Args format: target(20) + extraData
-ARGS="${ESCROW_SRC_ADDRESS}0x" # Target address + empty extra data
+# Build args: ResolverValidationExtension data + ExtraDataArgs(160)
+# NOTE: ResolverExample.deploySrc() will add the target address via abi.encodePacked(computed, args)
+echo -e "${YELLOW}🔧 Encoding args parameter...${NC}"
+
+# Args format - ResolverExample adds target, so we only provide:
+# - ResolverValidationExtension data: allowedTime(4) + bitmap(1) = 5 bytes
+# - ExtraDataArgs struct (160 bytes)
+# Total: 5 + 160 = 165 bytes
+
+# ResolverValidationExtension data (5 bytes total):
+# - allowedTime (4 bytes): when resolver can interact (use current time)
+ALLOWED_TIME="$(printf '%08x' $CURRENT_TIME)"                      # 4 bytes
+# - bitmap (1 byte): no fee, no integrator fee, no custom receiver, 0 resolvers in whitelist  
+BITMAP="00"                                                         # 1 byte
+
+# Encode ExtraDataArgs struct as 160 bytes (5 fields * 32 bytes each)
+ARGS_HASHLOCK="${SECRET_HASH:2}"                                    # 32 bytes
+ARGS_DST_CHAIN_ID="$(printf '%064x' $DST_CHAIN_ID)"                # 32 bytes  
+ARGS_DST_TOKEN="${DST_TOKEN_UINT256:2}"                            # 32 bytes
+ARGS_DEPOSITS="${PACKED_DEPOSITS:2}"                               # 32 bytes
+ARGS_TIMELOCKS="${TIMELOCKS_STAGES:2}"                             # 32 bytes
+
+# Build args WITHOUT target address (ResolverExample will add it)
+ARGS="0x${ALLOWED_TIME}${BITMAP}${ARGS_HASHLOCK}${ARGS_DST_CHAIN_ID}${ARGS_DST_TOKEN}${ARGS_DEPOSITS}${ARGS_TIMELOCKS}"
+
+echo -e "${GREEN}✅ Args parameter encoded ($(((${#ARGS} - 2) / 2)) bytes)${NC}"
+
+# Pre-deployment validation
+echo -e "${YELLOW}🔍 Pre-deployment validation...${NC}"
+
+# Validate args length (should be 5 + 160 = 165 bytes = 330 hex chars + 2 for 0x = 332)
+EXPECTED_ARGS_LENGTH=332
+if [ ${#ARGS} -ne $EXPECTED_ARGS_LENGTH ]; then
+    echo -e "${RED}❌ Args length mismatch: expected $EXPECTED_ARGS_LENGTH, got ${#ARGS}${NC}"
+    exit 1
+fi
+
+# Validate escrow address format
+if [[ ! "$ESCROW_SRC_ADDRESS" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
+    echo -e "${RED}❌ Invalid escrow address format: $ESCROW_SRC_ADDRESS${NC}"
+    exit 1
+fi
+
+# Check resolver has sufficient balance for safety deposit
+RESOLVER_BALANCE=$(cast balance "$RESOLVER_ADDRESS" --rpc-url "$RPC_URL" 2>/dev/null || echo "0")
+if [ "$RESOLVER_BALANCE" -lt "$SAFETY_DEPOSIT" ]; then
+    echo -e "${RED}❌ Resolver insufficient balance: $RESOLVER_BALANCE < $SAFETY_DEPOSIT${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✅ Pre-deployment validation passed${NC}"
 
 echo -e "${YELLOW}📡 Calling ResolverExample.deploySrc()...${NC}"
 
-# Send safety deposit first
-echo -e "${BLUE}💰 Sending safety deposit to escrow...${NC}"
-cast send "$ESCROW_SRC_ADDRESS" --value "$SAFETY_DEPOSIT" --rpc-url "$RPC_URL" --account deployerKey "" || {
-    echo -e "${YELLOW}⚠️  Safety deposit transfer may have failed, continuing...${NC}"
+# Send safety deposit first to the predicted address
+echo -e "${BLUE}💰 Sending safety deposit to predicted escrow...${NC}"
+cast send "$ESCROW_SRC_ADDRESS" --value "$SAFETY_DEPOSIT" --rpc-url "$RPC_URL" --account deployerKey --gas-limit 100000 || {
+    echo -e "${RED}❌ Safety deposit transfer failed${NC}"
+    exit 1
 }
 
-# Call deploySrc function
+# Call deploySrc function with enhanced error handling
 echo -e "${BLUE}🚀 Deploying source escrow...${NC}"
 
-cast send "$RESOLVER_ADDRESS" \
-    "deploySrc((bytes32,uint256,address,address,address,bytes32,uint256,uint256),(uint256,address,address,address,address,uint256,uint256,uint256),bytes32,bytes32,uint256,uint256,bytes)" \
+echo -e "${CYAN}📊 Deployment parameters:${NC}"
+echo "  Resolver: $RESOLVER_ADDRESS"
+echo "  Immutables: $IMMUTABLES"
+echo "  Order: $ORDER"
+echo "  Gas limit: 3000000"
+echo ""
+
+TX_HASH=$(cast send "$RESOLVER_ADDRESS" \
+    "deploySrc((bytes32,bytes32,uint256,uint256,uint256,uint256,uint256,uint256),(uint256,address,address,address,address,uint256,uint256,uint256),bytes32,bytes32,uint256,uint256,bytes)" \
     "$IMMUTABLES" \
     "$ORDER" \
     "$SIG_R" \
@@ -161,7 +277,26 @@ cast send "$RESOLVER_ADDRESS" \
     "$ARGS" \
     --rpc-url "$RPC_URL" \
     --account deployerKey \
-    --gas-limit 2000000
+    --gas-limit 3000000 \
+    --json | jq -r '.transactionHash' 2>/dev/null)
+
+# Wait for transaction confirmation and check status
+if [ -n "$TX_HASH" ] && [ "$TX_HASH" != "null" ]; then
+    echo -e "${BLUE}⏳ Waiting for transaction confirmation: $TX_HASH${NC}"
+    sleep 10
+    
+    TX_STATUS=$(cast receipt "$TX_HASH" --rpc-url "$RPC_URL" --field status 2>/dev/null || echo "0")
+    if [ "$TX_STATUS" = "0x1" ]; then
+        echo -e "${GREEN}✅ Transaction confirmed successfully${NC}"
+    else
+        echo -e "${RED}❌ Transaction failed with status: $TX_STATUS${NC}"
+        cast receipt "$TX_HASH" --rpc-url "$RPC_URL" 2>/dev/null || echo "Could not fetch receipt"
+        exit 1
+    fi
+else
+    echo -e "${RED}❌ Failed to get transaction hash${NC}"
+    exit 1
+fi
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Source escrow deployed successfully!${NC}"

@@ -134,4 +134,22 @@ contract ResolverExample is IResolverExample, Ownable {
             if (!success) RevertReasonForwarder.reRevert();
         }
     }
+
+    /**
+     * @notice See {IResolverExample-addressOfEscrowSrc}.
+     */
+    function addressOfEscrowSrc(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address) {
+        return _FACTORY.addressOfEscrowSrc(immutables);
+    }
+
+    /**
+     * @notice See {IResolverExample-addressOfEscrowDst}.
+     */
+    function addressOfEscrowDst(
+        IBaseEscrow.Immutables calldata immutables
+    ) external view returns (address) {
+        return _FACTORY.addressOfEscrowDst(immutables);
+    }
 }
