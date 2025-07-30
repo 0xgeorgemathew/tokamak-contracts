@@ -1,25 +1,27 @@
 {
-  "lastUpdated": 1753672776,
-  "deployer": "0x0000000000000000000000000000000000000000",
-  "config": {
-    "rescueDelay": 604800
-  },
-  "contracts": {
-    "sepolia": {
-      "chainId": 11155111,
-      "escrowFactory": "0xD0D22777D5047ad3Dc90f2F4307fA93D141ab7EF",
-      "accessToken": "0xe12Ae830Fd161727A67710921E7f15446a8b317c",
-      "feeToken": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
-      "swapToken": "0x67693020Ee73064C17A2B7773a2cb2945E70Cb5E",
-      "limitOrderProtocol": "0xa8D8F5f33af375ba0Eb0Ed15C46DA0757DE21b56"
+    "lastUpdated": 1753803928,
+    "deployer": "0x20E5B952942417D4CB99d64a9e06e41Dcef00000",
+    "config": {
+        "rescueDelay": 604800
     },
-    "monad": {
-      "chainId": 10143,
-      "escrowFactory": "0x33e1b70F5EDA06bdBebC4e4E13Ac16A82c7f2b69",
-      "accessToken": "0xdA9b2A4f67FAe08080CB8D65Da760DeC59C8e4F8",
-      "feeToken": "0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37",
-      "swapToken": "0x0E0C3aBcB3ea44303fDCff49682F45a6aFc4B057",
-      "limitOrderProtocol": "0x689F20F2e2901f32E255e8016Ad9D58b61D353b3"
+    "contracts": {
+        "sepolia": {
+            "chainId": 11155111,
+            "escrowFactory": "0x37fdE8f72cE3057bA7E6d341d189b0C2A7838532",
+            "accessToken": "0xe12Ae830Fd161727A67710921E7f15446a8b317c",
+            "feeToken": "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
+            "swapToken": "0x085619Cef93E5A6Cff7683558418424748880663",
+            "limitOrderProtocol": "0x57AC79A19E910BD94216B8F3f11af82853534607",
+            "resolver": "0xbC4ab7EcCfbBfe251B79bA65AEf367B90974C70b"
+        },
+        "monad": {
+            "chainId": 10143,
+            "escrowFactory": "0x80775B34A5Dd525427BcA118CE9E3155b4C931fD",
+            "accessToken": "0xdA9b2A4f67FAe08080CB8D65Da760DeC59C8e4F8",
+            "feeToken": "0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37",
+            "swapToken": "0x3A84567b87a039FFD5043949E0Ae119617746539",
+            "limitOrderProtocol": "0x689F20F2e2901f32E255e8016Ad9D58b61D353b3",
+            "resolver": "0xA4d9468eaD51FA0628777F1e307dEbA2164d8E0c"
+        }
     }
-  }
 }

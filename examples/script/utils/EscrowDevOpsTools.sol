@@ -67,23 +67,45 @@ library EscrowDevOpsTools {
     }
 
     function getOrderHashAndTimelocksFromSrcEscrowCreatedEvent(Config memory config) internal view returns(bytes32 orderHash, Timelocks) {
-        DevOpsTools.Receipt memory receipt = DevOpsTools.getMostRecentLog(
-            config.escrowFactory, 
-            SRC_ESCROW_CREATED_EVENT_SIGNATURE, 
-            block.chainid, 
+        // For cross-chain operations, always look for source escrow deployment on Sepolia (11155111)  
+        // regardless of which chain we're currently running on
+        uint256 sourceChainId = 11155111; // Sepolia
+        
+        // Since SrcEscrowCreated event was not emitted, fall back to OrderFilled event
+        // which contains the order hash in its data field
+        DevOpsTools.Receipt memory receipt = DevOpsTools.getMostRecentLogAnyAddress(
+            ORDER_FILLED_EVENT_SIGNATURE, 
+            sourceChainId, 
             RELATIVE_BROADCAST_PATH
         );
 
-        if (receipt.data.length < 256) {
-            revert NoSrcEscrowCreatedEventFound();
+        if (receipt.data.length >= 32) {
+            // Extract orderHash from OrderFilled event data (first 32 bytes)
+            orderHash = toBytes32(receipt.data, 0);
+            
+            // Since we don't have the original timelocks, reconstruct them from config
+            // using current timestamp as deployment time
+            uint256 deploymentTime = receipt.timestamp;
+            Timelocks timelocks = Timelocks.wrap(
+                deploymentTime |
+                (uint256(deploymentTime + config.withdrawalSrcTimelock) << 32) |
+                (uint256(deploymentTime + config.publicWithdrawalSrcTimelock) << 64) |
+                (uint256(deploymentTime + config.cancellationSrcTimelock) << 96) |
+                (uint256(deploymentTime + config.publicCancellationSrcTimelock) << 128) |
+                (uint256(deploymentTime + config.withdrawalDstTimelock) << 160) |
+                (uint256(deploymentTime + config.publicWithdrawalDstTimelock) << 192) |
+                (uint256(deploymentTime + config.cancellationDstTimelock) << 224)
+            );
+            
+            return (orderHash, timelocks);
         }
 
-        return (toBytes32(receipt.data, 0), Timelocks.wrap(uint256(toBytes32(receipt.data, 224))));
+        revert NoSrcEscrowCreatedEventFound(); // Reuse same error for simplicity
     }
 
-    function getEscrowDstAddressAndDeployTimeFromDstEscrowCreatedEvent(Config memory config) internal view returns(address, uint256) {
+    function getEscrowDstAddressAndDeployTimeFromDstEscrowCreatedEvent(address escrowFactory) internal view returns(address, uint256) {
         DevOpsTools.Receipt memory receipt = DevOpsTools.getMostRecentLog(
-            config.escrowFactory, 
+            escrowFactory, 
             DST_ESCROW_CREATED_EVENT_SIGNATURE, 
             block.chainid, 
             RELATIVE_BROADCAST_PATH

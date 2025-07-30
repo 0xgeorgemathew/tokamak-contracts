@@ -194,7 +194,7 @@ contract SetupCrossChainSwap is Script {
         // Compute destination escrow address in Sepolia fork context
         console.log("Computing destination escrow address on Sepolia...");
         console.log("Sepolia factory:", state.sepoliaFactory);
-        
+
         Timelocks timelocks = TimelocksSettersLib.init(
             state.timelockDuration, // srcWithdrawal
             state.timelockDuration * 2, // srcPublicWithdrawal
@@ -261,7 +261,7 @@ contract SetupCrossChainSwap is Script {
         // Compute source escrow address in Monad fork context
         console.log("Computing source escrow address on Monad...");
         console.log("Monad factory:", state.monadFactory);
-        
+
         Timelocks timelocks = TimelocksSettersLib.init(
             state.timelockDuration, // srcWithdrawal
             state.timelockDuration * 2, // srcPublicWithdrawal

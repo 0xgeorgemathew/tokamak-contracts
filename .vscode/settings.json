@@ -1,149 +1,156 @@
 {
-  // --- CORRECTED AND CLEANED SETTINGS ---
-
-  // Solidity Configuration
-  "solidity.compileUsingRemoteVersion": "v0.8.23+commit.f704f362",
-  "solidity.linter": "solhint",
-  "solidity.enabledAsYouTypeCompilationErrorCheck": true,
-  "solidity.validationDelay": 1500,
-  "solidity.packageDefaultDependenciesContractsDirectory": "src",
-  "solidity.packageDefaultDependenciesDirectory": "lib",
-
-  // Performance optimizations
-  "files.watcherExclude": {
-    "**/node_modules/**": true,
-    "**/lib/**": true,
-    "**/cache/**": true,
-    "**/out/**": true,
-    "**/broadcast/**": true,
-    "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true
-  },
-
-  // Memory and performance
-  "typescript.preferences.maxFileSize": 10485760,
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/lib": true,
-    "**/out": true,
-    "**/cache": true,
-    "**/broadcast": true
-  },
-
-  // Editor settings
-  "editor.formatOnType": false,
-  "editor.tabSize": 4,
-  "editor.insertSpaces": true,
-  "editor.detectIndentation": false,
-  "editor.formatOnSave": true,
-
-  // File associations
-  "files.associations": {
-    "*.sol": "solidity",
-    "foundry.toml": "toml",
-    "*.toml": "toml"
-  },
-
-  // Language-specific settings for Solidity
-  "[solidity]": {
-    "editor.defaultFormatter": "JuanBlanco.solidity",
-    "editor.formatOnSave": true
-  },
-
-  // Terminal settings for Foundry
-  "terminal.integrated.env.osx": {
-    "PATH": "${env:PATH}:${workspaceFolder}/bin"
-  },
-  "terminal.integrated.env.linux": {
-    "PATH": "${env:PATH}:${workspaceFolder}/bin"
-  },
-  "terminal.integrated.scrollback": 10000,
-  "terminal.integrated.fontSize": 13,
-  "terminal.integrated.cursorBlinking": true,
-
-  // IntelliSense optimizations
-  "solidity.enableLocalNodeCompiler": false,
-  "solidity.monoRepoSupport": true,
-
-  // Enhanced Git settings for commit workflow
-  "git.ignoreLimitWarning": true,
-  "git.autofetch": true,
-  "git.inputValidationLength": 72,
-  "git.inputValidationSubjectLength": 50,
-  "git.enableSmartCommit": true,
-  "git.confirmSync": false,
-  "scm.inputFontSize": 13,
-
-  // Error lens configuration
-  "errorLens.enabledDiagnosticLevels": ["error", "warning"],
-  "errorLens.excludeBySource": ["cSpell", "copilot"],
-
-  // AGGRESSIVE COPILOT DISABLE (Keep only commit messages)
-  "github.copilot.enable": {
-    "*": false,
-    "plaintext": false,
-    "markdown": false,
-    "scminput": true
-  },
-  "github.copilot.editor.enableAutoCompletions": false,
-  "github.copilot.editor.enableCodeActions": false,
-  "github.copilot.inlineSuggest.enable": false,
-  "github.copilot.nextEditSuggestions.enabled": false,
-  "github.copilot.renameSuggestions.triggerAutomatically": false,
-  "github.copilot.chat.enabled": false,
-  "github.copilot.labs.enabled": false,
-  "chat.commandCenter.enabled": false,
-  "chat.agent.enabled": false,
-  "workbench.panel.chat.enabled": false,
-  "github.copilot.advanced": {},
-  "github.copilot.chat.commitMessageGeneration.instructions": [
-    { "text": "Use conventional commit format: type(scope): description" },
-    { "text": "Use imperative mood: 'Add feature' not 'Added feature'" },
-    { "text": "Keep subject line under 50 characters" },
-    {
-      "text": "Use types: feat, fix, docs, style, refactor, perf, test, chore, ci"
+    // --- CORRECTED AND CLEANED SETTINGS ---
+    // Solidity Configuration
+    "solidity.compileUsingRemoteVersion": "v0.8.23+commit.f704f362",
+    "solidity.linter": "solhint",
+    "solidity.enabledAsYouTypeCompilationErrorCheck": true,
+    "solidity.validationDelay": 1500,
+    "solidity.packageDefaultDependenciesContractsDirectory": "src",
+    "solidity.packageDefaultDependenciesDirectory": "lib",
+    // Performance optimizations
+    // Performance optimizations
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/lib/**": true, // Note: You may want to keep lib visible
+        "**/cache/**": true,
+        "**/out/**": true,
+        // "**/broadcast/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true
     },
-    {
-      "text": "Include scope when relevant (e.g., contracts, tests, scripts, foundry)"
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/lib": true,
+        "**/out": true,
+        "**/cache": true,
+        "**/broadcast": true
     },
-    { "text": "Reference issue numbers with # prefix when applicable" },
-    { "text": "Focus on WHAT changed and WHY, not HOW" },
-    { "text": "For Solidity: specify contract names in scope when relevant" }
-  ],
-
-  // --- RESTORED DEFAULT SUGGESTION BEHAVIOR ---
-  // The settings that were here were breaking mouse clicks on suggestions.
-  // We will let the editor use its default, reliable behavior.
-  // You can still use the Tab key for precise control.
-  "editor.quickSuggestions": {
-    "other": true,
-    "comments": false,
-    "strings": false
-  },
-  "editor.suggestOnTriggerCharacters": true,
-  "editor.wordBasedSuggestions": "off",
-  "editor.parameterHints.enabled": true,
-  "editor.quickSuggestionsDelay": 10,
-  "editor.suggest.showSnippets": true,
-  "editor.suggest.showWords": false,
-  "editor.suggest.localityBonus": true,
-  "editor.suggest.shareSuggestSelections": false,
-  "editor.suggest.snippetsPreventQuickSuggestions": false,
-  "editor.suggest.filterGraceful": true,
-
-  // Ensure clean IntelliSense for other languages
-  "typescript.suggest.autoImports": true,
-  "typescript.suggest.enabled": true,
-  "typescript.preferences.includePackageJsonAutoImports": "auto",
-
-  // Additional Foundry optimizations
-  "explorer.excludeGitIgnore": true,
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
-  "files.trimFinalNewlines": true,
-
-  // Workspace-specific improvements
-  "workbench.editor.enablePreview": false,
-  "workbench.editor.enablePreviewFromQuickOpen": false,
-  "breadcrumbs.enabled": true
+    // Editor settings
+    "editor.formatOnType": false,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    // File associations
+    "files.associations": {
+        "*.sol": "solidity",
+        "foundry.toml": "toml",
+        "*.toml": "toml"
+    },
+    // Language-specific settings for Solidity
+    "[solidity]": {
+        "editor.defaultFormatter": "JuanBlanco.solidity",
+        "editor.formatOnSave": true
+    },
+    // Terminal settings for Foundry
+    "terminal.integrated.env.osx": {
+        "PATH": "${env:PATH}:${workspaceFolder}/bin"
+    },
+    "terminal.integrated.env.linux": {
+        "PATH": "${env:PATH}:${workspaceFolder}/bin"
+    },
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.cursorBlinking": true,
+    // IntelliSense optimizations
+    "solidity.enableLocalNodeCompiler": false,
+    "solidity.monoRepoSupport": true,
+    // Enhanced Git settings for commit workflow
+    "git.ignoreLimitWarning": true,
+    "git.autofetch": true,
+    "git.inputValidationLength": 72,
+    "git.inputValidationSubjectLength": 50,
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "scm.inputFontSize": 13,
+    // Error lens configuration
+    "errorLens.enabledDiagnosticLevels": [
+        "error",
+        "warning"
+    ],
+    "errorLens.excludeBySource": [
+        "cSpell",
+        "copilot"
+    ],
+    // AGGRESSIVE COPILOT DISABLE (Keep only commit messages)
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": true
+    },
+    "github.copilot.editor.enableAutoCompletions": false,
+    "github.copilot.editor.enableCodeActions": false,
+    "github.copilot.inlineSuggest.enable": false,
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "github.copilot.renameSuggestions.triggerAutomatically": false,
+    "github.copilot.chat.enabled": false,
+    "github.copilot.labs.enabled": false,
+    "chat.commandCenter.enabled": false,
+    "chat.agent.enabled": false,
+    "workbench.panel.chat.enabled": false,
+    "github.copilot.advanced": {},
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "Use conventional commit format: type(scope): description"
+        },
+        {
+            "text": "Use imperative mood: 'Add feature' not 'Added feature'"
+        },
+        {
+            "text": "Keep subject line under 50 characters"
+        },
+        {
+            "text": "Use types: feat, fix, docs, style, refactor, perf, test, chore, ci"
+        },
+        {
+            "text": "Include scope when relevant (e.g., contracts, tests, scripts, foundry)"
+        },
+        {
+            "text": "Reference issue numbers with # prefix when applicable"
+        },
+        {
+            "text": "Focus on WHAT changed and WHY, not HOW"
+        },
+        {
+            "text": "For Solidity: specify contract names in scope when relevant"
+        }
+    ],
+    // --- RESTORED DEFAULT SUGGESTION BEHAVIOR ---
+    // The settings that were here were breaking mouse clicks on suggestions.
+    // We will let the editor use its default, reliable behavior.
+    // You can still use the Tab key for precise control.
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": false
+    },
+    "editor.suggestOnTriggerCharacters": true,
+    "editor.wordBasedSuggestions": "off",
+    "editor.parameterHints.enabled": true,
+    "editor.quickSuggestionsDelay": 10,
+    "editor.suggest.showSnippets": true,
+    "editor.suggest.showWords": false,
+    "editor.suggest.localityBonus": true,
+    "editor.suggest.shareSuggestSelections": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggest.filterGraceful": true,
+    // Ensure clean IntelliSense for other languages
+    "typescript.suggest.autoImports": true,
+    "typescript.suggest.enabled": true,
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    // Additional Foundry optimizations
+    // "explorer.excludeGitIgnore": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    // Workspace-specific improvements
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "breadcrumbs.enabled": true,
+    "files.exclude": {
+        "**/.env": false,
+        "**/makefile": false,
+        "**/Makefile": false
+    },
 }

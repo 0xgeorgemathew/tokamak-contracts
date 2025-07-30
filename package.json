@@ -7,6 +7,10 @@
     "url": "git@github.com:1inch/cross-chain-swap.git"
   },
   "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "ethers": "^5.7.0"
+  },
   "devDependencies": {
     "eslint": "8.56.0",
     "rimraf": "5.0.5",
@@ -25,6 +29,16 @@
     "lint:fix": "solhint --max-warnings 0 \"contracts/**/*.sol\" \"test/**/*.sol\" --fix",
     "test": "FOUNDRY_PROFILE=default forge snapshot --no-match-test \"testFuzz_*\"",
     "test:lite": "FOUNDRY_PROFILE=lite forge test -vvv",
-    "test:zksync": "FOUNDRY_PROFILE=zksync forge test -vvv --zksync"
+    "test:zksync": "FOUNDRY_PROFILE=zksync forge test -vvv --zksync",
+    "hackathon:quick-deploy": "./scripts/quick-deploy.sh",
+    "hackathon:demo": "./scripts/hackathon-demo.sh",
+    "hackathon:balance": "node scripts/balance-checker.js",
+    "hackathon:balance-watch": "node scripts/balance-checker.js --watch",
+    "hackathon:verify": "node scripts/verify-swap.js",
+    "hackathon:sign": "node scripts/demo-sign-order.js",
+    "resolver:deploy-src": "./scripts/resolver-deploy-src.sh",
+    "resolver:deploy-dst": "./scripts/resolver-deploy-dst.sh",
+    "resolver:withdraw-dst": "./scripts/resolver-withdraw.sh dst",
+    "resolver:withdraw-src": "./scripts/resolver-withdraw.sh src"
   }
 }

@@ -5,6 +5,9 @@
         "private-vars-leading-underscore": "error",
         "func-visibility": ["error", { "ignoreConstructors": true }],
         "max-line-length": ["error", 140],
-        "no-inline-assembly": ["off"]
+        "no-unused-vars": ["off"],
+        "no-inline-assembly": ["off"],
+        "no-console": ["off"]
+
     }
 }

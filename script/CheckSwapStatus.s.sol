@@ -210,16 +210,16 @@ contract CheckSwapStatus is Script {
         bool srcConnected = false;
 
         try vm.createSelectFork(vm.envString("SEPOLIA_RPC_URL")) {
-            dstFunded = IERC20(state.sepoliaToken).balanceOf(state.dstEscrow) >= state.dstAmount &&
-                       state.dstEscrow.balance >= state.safetyDeposit;
+            dstFunded = IERC20(state.sepoliaToken).balanceOf(state.dstEscrow) >= state.dstAmount
+                && state.dstEscrow.balance >= state.safetyDeposit;
             dstConnected = true;
         } catch {
             console.log(unicode"⚠️  Cannot connect to Sepolia testnet for final check");
         }
 
         try vm.createSelectFork(vm.envString("MONAD_RPC_URL")) {
-            srcFunded = IERC20(state.monadToken).balanceOf(state.srcEscrow) >= state.srcAmount &&
-                       state.srcEscrow.balance >= state.safetyDeposit;
+            srcFunded = IERC20(state.monadToken).balanceOf(state.srcEscrow) >= state.srcAmount
+                && state.srcEscrow.balance >= state.safetyDeposit;
             srcConnected = true;
         } catch {
             console.log(unicode"⚠️  Cannot connect to Monad testnet for final check");

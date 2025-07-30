@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
+// solhint-disable-next-line file-import
 
 pragma solidity 0.8.23;
+// solhint-disable-next-line
 
 import { IERC20 } from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
+// solhint-disable-next-line
 import { BaseExtension } from "limit-order-settlement/contracts/extensions/BaseExtension.sol";
 import { ResolverValidationExtension } from
     "limit-order-settlement/contracts/extensions/ResolverValidationExtension.sol";

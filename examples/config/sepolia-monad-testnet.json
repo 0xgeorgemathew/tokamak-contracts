@@ -1,0 +1,26 @@
+{
+    "escrowFactory": "0xD0D22777D5047ad3Dc90f2F4307fA93D141ab7EF",
+    "limitOrderProtocol": "0xa8D8F5f33af375ba0Eb0Ed15C46DA0757DE21b56",
+    "deployer": "DEPLOYER_ADDRESS_PLACEHOLDER",
+    "maker": "MAKER_ADDRESS_PLACEHOLDER",
+    "srcToken": "SRC_TOKEN_ADDRESS_PLACEHOLDER",
+    "dstToken": "DST_TOKEN_ADDRESS_PLACEHOLDER",
+    "resolver": "RESOLVER_ADDRESS_PLACEHOLDER",
+    "srcAmount": 100000000000000000000,
+    "dstAmount": 100000000000000000000,
+    "safetyDeposit": 1000000000000000000,
+    "withdrawalSrcTimelock": 300,
+    "publicWithdrawalSrcTimelock": 600,
+    "cancellationSrcTimelock": 900,
+    "publicCancellationSrcTimelock": 1200,
+    "withdrawalDstTimelock": 300,
+    "publicWithdrawalDstTimelock": 600,
+    "cancellationDstTimelock": 900,
+    "secret": "testnet_secret_123",
+    "stages": [
+        "deployEscrowSrc",
+        "deployEscrowDst",
+        "withdrawSrc",
+        "withdrawDst"
+    ]
+}

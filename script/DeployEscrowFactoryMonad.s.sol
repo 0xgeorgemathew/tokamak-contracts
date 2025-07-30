@@ -54,8 +54,9 @@ contract DeployEscrowFactoryMonad is DeploymentUtils {
             accessToken: accessToken, // Preserve loaded value
             feeToken: feeToken, // Preserve loaded value
             swapToken: swapToken, // Preserve loaded value
-            lop: LOP
-        });
+            lop: LOP,
+            resolver: address(0) // Will be added by resolver deployment script
+         });
 
         updateDeploymentFile(NETWORK_NAME, MONAD_CHAIN_ID, deployer, RESCUE_DELAY, addrs);
 

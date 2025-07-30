@@ -1,4 +1,5 @@
 [profile.default]
+ffi = true
 src = 'contracts'
 out = 'out'
 libs = ['lib']
@@ -11,6 +12,22 @@ gas_reports = ["EscrowSrc", "EscrowDst", "EscrowFactory", "MerkleStorageInvalida
 metadata = true
 metadata_hash = "none"  # disable ipfs
 use_literal_content = true # store source code in the json file directly
+remappings = [
+    "@1inch/limit-order-protocol-contract/=/Users/george/Workspace/tokamak-contracts/lib/limit-order-protocol/",
+    "@1inch/limit-order-settlement/=/Users/george/Workspace/tokamak-contracts/lib/limit-order-settlement/",
+    "@1inch/solidity-utils/=/Users/george/Workspace/tokamak-contracts/lib/solidity-utils/",
+    "solidity-utils/=/Users/george/Workspace/tokamak-contracts/lib/solidity-utils/",
+    "limit-order-protocol/=/Users/george/Workspace/tokamak-contracts/lib/limit-order-protocol/",
+    "limit-order-settlement/=/Users/george/Workspace/tokamak-contracts/lib/limit-order-settlement/",
+    "@openzeppelin/contracts/=/Users/george/Workspace/tokamak-contracts/lib/openzeppelin-contracts/contracts/",
+    "@chainlink/contracts/=/Users/george/Workspace/tokamak-contracts/lib/chainlink-brownie-contracts/contracts/",
+    "@gnosis.pm/safe-contracts/=/Users/george/Workspace/tokamak-contracts/lib/safe-contracts/",
+    "ds-test/=/Users/george/Workspace/tokamak-contracts/lib/forge-std/lib/ds-test/src/",
+    "erc4626-tests/=/Users/george/Workspace/tokamak-contracts/lib/openzeppelin-contracts/lib/erc4626-tests/",
+    "forge-std/=/Users/george/Workspace/tokamak-contracts/lib/forge-std/src/",
+    "murky/=/Users/george/Workspace/tokamak-contracts/lib/murky/",
+    "openzeppelin-contracts/=/Users/george/Workspace/tokamak-contracts/lib/openzeppelin-contracts/"
+]
 fs_permissions = [
     { access = "read", path = "./examples/config/config.json" },
     { access = "read", path = "./broadcast" },

@@ -14,7 +14,6 @@ contract DeployEscrowFactoryTestnet is DeploymentUtils {
     using stdJson for string;
 
     uint32 public constant RESCUE_DELAY = 691200; // 8 days
-    address public constant LOP = 0xa8D8F5f33af375ba0Eb0Ed15C46DA0757DE21b56;
     uint256 public constant SEPOLIA_CHAIN_ID = 11155111;
     string public constant NETWORK_NAME = "sepolia";
 
@@ -30,6 +29,7 @@ contract DeployEscrowFactoryTestnet is DeploymentUtils {
         address accessToken = json.readAddress(string.concat(basePath, ".accessToken"));
         address feeToken = json.readAddress(string.concat(basePath, ".feeToken"));
         address swapToken = json.readAddress(string.concat(basePath, ".swapToken"));
+        address limitOrderProtocol = json.readAddress(string.concat(basePath, ".limitOrderProtocol"));
 
         // 2. Validate that the addresses were loaded correctly
         require(accessToken != address(0), "Sepolia accessToken not found in deployments.json");
@@ -43,8 +43,9 @@ contract DeployEscrowFactoryTestnet is DeploymentUtils {
         vm.startBroadcast();
 
         console.log("Deploying EscrowFactory to Sepolia...");
-        EscrowFactory escrowFactory =
-            new EscrowFactory(LOP, IERC20(feeToken), IERC20(accessToken), feeBankOwner, RESCUE_DELAY, RESCUE_DELAY);
+        EscrowFactory escrowFactory = new EscrowFactory(
+            limitOrderProtocol, IERC20(feeToken), IERC20(accessToken), feeBankOwner, RESCUE_DELAY, RESCUE_DELAY
+        );
 
         vm.stopBroadcast();
 
@@ -54,8 +55,9 @@ contract DeployEscrowFactoryTestnet is DeploymentUtils {
             accessToken: accessToken, // Preserve loaded value
             feeToken: feeToken, // Preserve loaded value
             swapToken: swapToken, // Preserve loaded value
-            lop: LOP
-        });
+            lop: limitOrderProtocol,
+            resolver: address(0) // Will be added by resolver deployment script
+         });
 
         updateDeploymentFile(NETWORK_NAME, SEPOLIA_CHAIN_ID, deployer, RESCUE_DELAY, addrs);
 

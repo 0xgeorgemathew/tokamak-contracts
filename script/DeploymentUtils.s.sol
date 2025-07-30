@@ -19,6 +19,7 @@ contract DeploymentUtils is Script {
         address feeToken;
         address swapToken;
         address lop;
+        address resolver;
     }
 
     /**
@@ -234,7 +235,7 @@ contract DeploymentUtils is Script {
         uint256 chainId,
         DeploymentAddresses memory addrs
     ) private pure returns (string memory) {
-        return string(
+        string memory basicFields = string(
             abi.encodePacked(
                 '    "',
                 network,
@@ -256,10 +257,18 @@ contract DeploymentUtils is Script {
                 '",\n',
                 '      "limitOrderProtocol": "',
                 vm.toString(addrs.lop),
-                '"\n',
-                "    }"
+                '"'
             )
         );
+
+        // Add resolver field only if address is not zero
+        if (addrs.resolver != address(0)) {
+            return string(
+                abi.encodePacked(basicFields, ",\n", '      "resolver": "', vm.toString(addrs.resolver), '"\n', "    }")
+            );
+        } else {
+            return string(abi.encodePacked(basicFields, "\n", "    }"));
+        }
     }
 
     function _createNewJson(

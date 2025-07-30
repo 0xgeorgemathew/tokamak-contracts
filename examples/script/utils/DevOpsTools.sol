@@ -5,6 +5,7 @@ pragma solidity 0.8.23;
 import {Vm} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {StringUtils} from "./StringUtils.sol";
+import {console} from "forge-std/console.sol";
 
 library DevOpsTools {
     using stdJson for string;
@@ -176,8 +177,77 @@ library DevOpsTools {
         }
 
         if (latestReceipt.timestamp != 0) {
+            console.log("SUCCESS: Found log with topic %s from address %s", vm.toString(topic), latestReceipt.contractAddress);
             return latestReceipt;
         } else {
+            console.log("DEBUG: Searching for log with topic %s on chain %s", vm.toString(topic), chainId);
+            console.log("DEBUG: Expected contract address: %s", contractAddress);
+            console.log("ERROR: No logs found with specified topic and contract address");
+            revert(
+                string.concat(
+                    "No logs with topic ", "'", vm.toString(topic), "'", " has found on chain ", vm.toString(chainId)
+                )
+            );
+        }
+    }
+
+    function getMostRecentLogAnyAddress(
+        bytes32 topic,
+        uint256 chainId,
+        string memory relativeBroadcastPath
+    ) internal view returns (Receipt memory) {
+        Receipt memory latestReceipt = Receipt({
+            contractAddress: address(0),
+            topics: new bytes32[](0),
+            data: "",
+            timestamp: 0
+        });
+
+        uint256 lastTimestamp;
+
+        bool runProcessed;
+        Vm.DirEntry[] memory entries = vm.readDir(relativeBroadcastPath, 3);
+        for (uint256 i = 0; i < entries.length; i++) {
+            string memory normalizedPath = normalizePath(entries[i].path);
+            if (
+                normalizedPath.contains(string.concat("/", vm.toString(chainId), "/"))
+                    && normalizedPath.contains(".json") && !normalizedPath.contains("dry-run")
+            ) {
+                string memory json = vm.readFile(normalizedPath);
+                latestReceipt = processLogsAnyAddress(json, topic, latestReceipt);
+            }
+        }
+        for (uint256 i = 0; i < entries.length; i++) {
+            Vm.DirEntry memory entry = entries[i];
+            if (
+                entry.path.contains(string.concat("/", vm.toString(chainId), "/")) && entry.path.contains(".json")
+                    && !entry.path.contains("dry-run")
+            ) {
+                runProcessed = true;
+                string memory json = vm.readFile(entry.path);
+
+                uint256 timestamp = vm.parseJsonUint(json, ".timestamp");
+
+                if (timestamp > lastTimestamp) {
+                    latestReceipt = processLogsAnyAddress(json, topic, latestReceipt);
+
+                    if (latestReceipt.timestamp != 0) {
+                        lastTimestamp = timestamp;
+                    }
+                }
+            }
+        }
+
+        if (!runProcessed) {
+            revert NoDeploymentArtifactsFound();
+        }
+
+        if (latestReceipt.timestamp != 0) {
+            console.log("SUCCESS: Found log with topic %s from address %s (any address search)", vm.toString(topic), latestReceipt.contractAddress);
+            return latestReceipt;
+        } else {
+            console.log("DEBUG: Searching for log with topic %s on chain %s (any address)", vm.toString(topic), chainId);
+            console.log("ERROR: No logs found with specified topic from any address");
             revert(
                 string.concat(
                     "No logs with topic ", "'", vm.toString(topic), "'", " has found on chain ", vm.toString(chainId)
@@ -219,6 +289,40 @@ library DevOpsTools {
         return latestReceipt;
     }
 
+    function processLogsAnyAddress(string memory json, bytes32 topic, Receipt memory latestReceipt)
+        internal
+        view
+        returns (Receipt memory)
+    {
+        for (uint256 i = 0; vm.keyExists(json, string.concat("$.receipts[", vm.toString(i), "]")); i++) {
+            string memory receiptsPath = string.concat("$.receipts[", vm.toString(i), "]");
+            string memory statusPath = string.concat(receiptsPath, ".status");
+
+            if (vm.keyExists(json, statusPath) && json.readUint(statusPath) != 1) {
+                continue; // Skip failed transactions
+            }
+
+            string memory logsPath = string.concat(receiptsPath, ".logs");
+            if (!vm.keyExists(json, logsPath)) {
+                continue; // Skip receipts without logs
+            }
+
+            for (uint256 j = 0; vm.keyExists(json, string.concat(logsPath, "[", vm.toString(j), "]")); j++) {
+                string memory logPath = string.concat(logsPath, "[", vm.toString(j), "]");
+                
+                string memory addressPath = string.concat(logPath, ".address");
+                if (!vm.keyExists(json, addressPath)) {
+                    continue; // Skip logs without address
+                }
+
+                address logAddress = json.readAddress(addressPath);
+                latestReceipt = _parseLatestReceipt(json, logAddress, topic, logPath, latestReceipt);
+            }
+        }
+
+        return latestReceipt;
+    }
+
     function _parseLatestReceipt(
         string memory json, 
         address contractAddress, 
@@ -227,12 +331,14 @@ library DevOpsTools {
         Receipt memory latestReceipt
     ) 
         internal
-        pure
+        view
         returns (Receipt memory)
     {
         bytes32[] memory topics = vm.parseJsonBytes32Array(json, string.concat(logPath, ".topics"));
         for (uint256 k = 0; k < topics.length; k++) {
+            console.log("DEBUG: Found topic %s from address %s", vm.toString(topics[k]), contractAddress);
             if (topics[k] == topic) {
+                console.log("DEBUG: Topic matches! Setting receipt data");
                 latestReceipt.contractAddress = contractAddress;
                 latestReceipt.topics = topics;
                 latestReceipt.data = json.readBytes(string.concat(logPath, ".data"));

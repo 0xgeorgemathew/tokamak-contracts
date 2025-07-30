@@ -4,3 +4,11 @@
 solidity-utils/=lib/solidity-utils/
 limit-order-protocol/=lib/limit-order-protocol/
 limit-order-settlement/=lib/limit-order-settlement/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/
+@gnosis.pm/safe-contracts/=lib/safe-contracts/
+ds-test/=lib/forge-std/lib/ds-test/src/
+erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/
+forge-std/=lib/forge-std/src/
+murky/=lib/murky/
+openzeppelin-contracts/=lib/openzeppelin-contracts/

@@ -40,7 +40,8 @@ contract DeployTokens is DeploymentUtils {
             accessToken: address(accessToken),
             feeToken: address(0),
             swapToken: address(swapToken),
-            lop: address(0)
+            lop: address(0),
+            resolver: address(0)
         });
 
         updateDeploymentFile(networkName, chainId, deployer, rescueDelay, addrs);
@@ -62,7 +63,6 @@ contract DeployTokens is DeploymentUtils {
         if (chainId == 10143) return "M";
         return "U";
     }
-
 }
 
 // --- END OF FILE ---

@@ -423,7 +423,7 @@ contract ExecuteWithdrawals is Script {
             console.log(unicode"  🌐 Sepolia testnet: ❌ SEPOLIA_RPC_URL not found");
         }
 
-        // Test Monad connection  
+        // Test Monad connection
         try vm.envString("MONAD_RPC_URL") returns (string memory monadRpc) {
             if (bytes(monadRpc).length > 0) {
                 try vm.createSelectFork(monadRpc) {

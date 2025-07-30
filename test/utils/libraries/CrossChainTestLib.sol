@@ -331,7 +331,7 @@ library CrossChainTestLib {
                 orderDetails.maker,
                 orderDetails.receiver,
                 orderDetails.srcToken,
-                address(new ERC20True()),
+                orderDetails.dstToken, // Use actual destination token instead of fake ERC20True
                 orderDetails.srcAmount,
                 orderDetails.dstAmount,
                 MakerTraits.wrap(0),
